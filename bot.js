@@ -66,6 +66,9 @@ async function start(client) {
           `📚 *CEK STOK BUKU*\n` +
           `• buku Atomic Habit - Cek ketersediaan buku\n` +
           `• buku [judul] - Cek buku lainnya\n\n` +
+          `🎬 *MOVIE DATABASE*\n` +
+          `• film Avengers - Info film\n` +
+          `• film [judul] - Cari film lainnya\n\n` +
           `Silakan pilih! 😊`;
         await client.sendText(pengirim, menu);
       }
@@ -563,6 +566,85 @@ async function start(client) {
             '❌ Gagal mengecek buku.\n\n' +
             'Silakan coba lagi atau hubungi admin.'
           );
+        }
+      }
+      
+      // Fitur Movie Database dengan OMDB API
+      else if (pesan.startsWith('film ')) {
+        const judulFilm = message.body.substring(5).trim();
+        
+        if (!judulFilm) {
+          await client.sendText(pengirim, '❌ Format salah!\n\nContoh: film Avengers');
+          return;
+        }
+        
+        try {
+          await client.sendText(pengirim, '⏳ Mencari info film...');
+          
+          // OMDB API (gratis, tanpa API key untuk pencarian terbatas)
+          // Untuk fitur lengkap, daftar API key gratis di: http://www.omdbapi.com/apikey.aspx
+          const apiKey = 'YOUR_OMDB_API_KEY'; // Ganti dengan API key Anda
+          
+          const response = await axios.get(`http://www.omdbapi.com/`, {
+            params: {
+              apikey: apiKey,
+              t: judulFilm,
+              plot: 'short'
+            }
+          });
+          
+          if (response.data.Response === 'True') {
+            const movie = response.data;
+            
+            const movieInfo = `🎬 *${movie.Title}* (${movie.Year})\n\n` +
+              `⭐ Rating: ${movie.imdbRating}/10\n` +
+              `🎭 Genre: ${movie.Genre}\n` +
+              `⏱️ Durasi: ${movie.Runtime}\n` +
+              `🎬 Sutradara: ${movie.Director}\n` +
+              `🎭 Pemain: ${movie.Actors}\n\n` +
+              `📝 Sinopsis:\n${movie.Plot}\n\n` +
+              `🏆 Awards: ${movie.Awards}\n\n` +
+              `Data dari OMDB`;
+            
+            await client.sendText(pengirim, movieInfo);
+            
+            // Kirim poster jika ada
+            if (movie.Poster && movie.Poster !== 'N/A') {
+              try {
+                await client.sendImage(pengirim, movie.Poster, 'poster.jpg', movie.Title);
+              } catch (err) {
+                console.log('Gagal kirim poster');
+              }
+            }
+            
+          } else {
+            await client.sendText(pengirim, 
+              `❌ Film "${judulFilm}" tidak ditemukan.\n\n` +
+              `Coba dengan judul dalam bahasa Inggris.\n` +
+              `Contoh: film Avengers, film Inception`
+            );
+          }
+          
+        } catch (error) {
+          console.error('Error fetching movie:', error);
+          
+          // Fallback jika belum ada API key
+          if (error.response?.status === 401 || error.message.includes('Invalid API key')) {
+            await client.sendText(pengirim,
+              `ℹ️ *FITUR MOVIE DATABASE*\n\n` +
+              `Untuk menggunakan fitur ini, perlu API key gratis dari OMDB.\n\n` +
+              `📝 Cara mendapatkan:\n` +
+              `1. Buka: http://www.omdbapi.com/apikey.aspx\n` +
+              `2. Pilih FREE (1,000 requests/day)\n` +
+              `3. Masukkan email\n` +
+              `4. Cek email untuk aktivasi\n` +
+              `5. Copy API key\n` +
+              `6. Masukkan ke bot.js\n\n` +
+              `Lihat file: MOVIE_API_SETUP.md untuk panduan lengkap.`
+            );
+          } else {
+            await client.sendText(pengirim, '❌ Gagal mencari film. Coba lagi nanti.');
+          }
         }
       }
       
