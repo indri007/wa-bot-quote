@@ -69,6 +69,11 @@ async function start(client) {
           `🎬 *MOVIE DATABASE*\n` +
           `• film Avengers - Info film\n` +
           `• film [judul] - Cari film lainnya\n\n` +
+          `📰 *BERITA TERKINI*\n` +
+          `• berita - Berita terkini Indonesia\n` +
+          `• berita teknologi - Berita teknologi\n` +
+          `• berita bisnis - Berita bisnis\n` +
+          `• berita olahraga - Berita olahraga\n\n` +
           `Silakan pilih! 😊`;
         await client.sendText(pengirim, menu);
       }
@@ -644,6 +649,87 @@ async function start(client) {
             );
           } else {
             await client.sendText(pengirim, '❌ Gagal mencari film. Coba lagi nanti.');
+          }
+        }
+      }
+      
+      // Fitur Berita dengan NewsAPI
+      else if (pesan.startsWith('berita')) {
+        try {
+          await client.sendText(pengirim, '⏳ Mengambil berita terkini...');
+          
+          const apiKey = 'YOUR_NEWSAPI_KEY'; // Ganti dengan API key dari newsapi.org
+          
+          // Tentukan kategori berdasarkan pesan
+          let category = 'general';
+          let country = 'id'; // Indonesia
+          let query = '';
+          
+          if (pesan.includes('teknologi') || pesan.includes('technology')) {
+            category = 'technology';
+          } else if (pesan.includes('bisnis') || pesan.includes('business')) {
+            category = 'business';
+          } else if (pesan.includes('olahraga') || pesan.includes('sports')) {
+            category = 'sports';
+          } else if (pesan.includes('kesehatan') || pesan.includes('health')) {
+            category = 'health';
+          } else if (pesan.includes('hiburan') || pesan.includes('entertainment')) {
+            category = 'entertainment';
+          }
+          
+          const response = await axios.get('https://newsapi.org/v2/top-headlines', {
+            params: {
+              apiKey: apiKey,
+              country: country,
+              category: category,
+              pageSize: 5
+            }
+          });
+          
+          if (response.data.status === 'ok' && response.data.articles.length > 0) {
+            const articles = response.data.articles;
+            
+            let beritaText = `📰 *BERITA TERKINI*\n`;
+            if (category !== 'general') {
+              beritaText += `Kategori: ${category.toUpperCase()}\n`;
+            }
+            beritaText += `\n`;
+            
+            articles.forEach((article, index) => {
+              beritaText += `${index + 1}. *${article.title}*\n`;
+              if (article.description) {
+                beritaText += `   ${article.description.substring(0, 100)}...\n`;
+              }
+              beritaText += `   🔗 ${article.url}\n`;
+              beritaText += `   📅 ${new Date(article.publishedAt).toLocaleString('id-ID')}\n\n`;
+            });
+            
+            beritaText += `Data dari NewsAPI`;
+            
+            await client.sendText(pengirim, beritaText);
+            
+          } else {
+            await client.sendText(pengirim, '❌ Tidak ada berita ditemukan.');
+          }
+          
+        } catch (error) {
+          console.error('Error fetching news:', error);
+          
+          // Fallback jika belum ada API key
+          if (error.response?.status === 401 || error.message.includes('apiKey')) {
+            await client.sendText(pengirim,
+              `ℹ️ *FITUR BERITA*\n\n` +
+              `Untuk menggunakan fitur ini, perlu API key gratis dari NewsAPI.\n\n` +
+              `📝 Cara mendapatkan:\n` +
+              `1. Buka: https://newsapi.org/register\n` +
+              `2. Daftar gratis (100 requests/day)\n` +
+              `3. Verifikasi email\n` +
+              `4. Copy API key\n` +
+              `5. Masukkan ke bot.js\n\n` +
+              `Lihat file: NEWS_API_SETUP.md untuk panduan lengkap.`
+            );
+          } else {
+            await client.sendText(pengirim, '❌ Gagal mengambil berita. Coba lagi nanti.');
           }
         }
       }
