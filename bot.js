@@ -74,6 +74,10 @@ async function start(client) {
           `• berita teknologi - Berita teknologi\n` +
           `• berita bisnis - Berita bisnis\n` +
           `• berita olahraga - Berita olahraga\n\n` +
+          `💱 *KONVERSI MATA UANG*\n` +
+          `• kurs USD - Kurs Dollar ke Rupiah\n` +
+          `• kurs 100 USD IDR - Konversi 100 USD ke IDR\n` +
+          `• kurs [jumlah] [dari] [ke] - Konversi mata uang\n\n` +
           `Silakan pilih! 😊`;
         await client.sendText(pengirim, menu);
       }
@@ -730,6 +734,95 @@ async function start(client) {
             );
           } else {
             await client.sendText(pengirim, '❌ Gagal mengambil berita. Coba lagi nanti.');
+          }
+        }
+      }
+      
+      // Fitur Konversi Mata Uang dengan Fixer.io API
+      else if (pesan.startsWith('kurs')) {
+        try {
+          await client.sendText(pengirim, '⏳ Mengambil kurs terkini...');
+          
+          const apiKey = 'YOUR_FIXER_API_KEY'; // Ganti dengan API key dari fixer.io
+          
+          // Parse perintah
+          const parts = message.body.split(' ').filter(p => p);
+          
+          let amount = 1;
+          let from = 'USD';
+          let to = 'IDR';
+          
+          if (parts.length === 2) {
+            // Format: kurs USD
+            from = parts[1].toUpperCase();
+            to = 'IDR';
+          } else if (parts.length === 4) {
+            // Format: kurs 100 USD IDR
+            amount = parseFloat(parts[1]);
+            from = parts[2].toUpperCase();
+            to = parts[3].toUpperCase();
+          } else if (parts.length === 3) {
+            // Format: kurs USD IDR
+            from = parts[1].toUpperCase();
+            to = parts[2].toUpperCase();
+          }
+          
+          // Validasi amount
+          if (isNaN(amount) || amount <= 0) {
+            await client.sendText(pengirim, '❌ Jumlah tidak valid!\n\nContoh: kurs 100 USD IDR');
+            return;
+          }
+          
+          const response = await axios.get(`https://api.apilayer.com/fixer/convert`, {
+            params: {
+              from: from,
+              to: to,
+              amount: amount
+            },
+            headers: {
+              'apikey': apiKey
+            }
+          });
+          
+          if (response.data.success) {
+            const result = response.data.result;
+            const rate = response.data.info.rate;
+            const date = new Date(response.data.date).toLocaleDateString('id-ID');
+            
+            const kursInfo = `💱 *KONVERSI MATA UANG*\n\n` +
+              `${amount.toLocaleString('id-ID')} ${from} = ${result.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${to}\n\n` +
+              `📊 Rate: 1 ${from} = ${rate.toLocaleString('id-ID', {minimumFractionDigits: 4, maximumFractionDigits: 4})} ${to}\n` +
+              `📅 Update: ${date}\n\n` +
+              `Data dari Fixer.io`;
+            
+            await client.sendText(pengirim, kursInfo);
+            
+          } else {
+            await client.sendText(pengirim, 
+              `❌ Gagal konversi mata uang.\n\n` +
+              `Pastikan kode mata uang benar.\n` +
+              `Contoh: USD, EUR, GBP, JPY, IDR`
+            );
+          }
+          
+        } catch (error) {
+          console.error('Error fetching currency:', error);
+          
+          // Fallback jika belum ada API key
+          if (error.response?.status === 401 || error.message.includes('apikey')) {
+            await client.sendText(pengirim,
+              `ℹ️ *FITUR KONVERSI MATA UANG*\n\n` +
+              `Untuk menggunakan fitur ini, perlu API key gratis dari Fixer.io\n\n` +
+              `📝 Cara mendapatkan:\n` +
+              `1. Buka: https://fixer.io/signup/free\n` +
+              `2. Daftar gratis (100 requests/bulan)\n` +
+              `3. Verifikasi email\n` +
+              `4. Copy API key\n` +
+              `5. Masukkan ke bot.js\n\n` +
+              `Lihat file: CURRENCY_API_SETUP.md untuk panduan lengkap.`
+            );
+          } else {
+            await client.sendText(pengirim, '❌ Gagal mengambil kurs. Coba lagi nanti.');
           }
         }
       }
