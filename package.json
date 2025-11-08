@@ -1,0 +1,15 @@
+{
+  "name": "bot-whatsapp-saya",
+  "version": "1.0.0",
+  "description": "Bot WhatsApp Otomatis",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "keywords": ["whatsapp", "bot", "chatbot"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@open-wa/wa-automate": "^4.76.0"
+  }
+}
