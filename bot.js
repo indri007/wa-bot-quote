@@ -32,121 +32,49 @@ async function start(client) {
       }
       
       else if (pesan === 'menu') {
-        const menu1 = `📋 *MENU BOT WHATSAPP*\n\n` +
+        const menu = `📋 *MENU BOT WHATSAPP*\n\n` +
           `🎯 *PERINTAH DASAR*\n` +
-          `• menu - Tampilkan menu ini\n` +
-          `• info - Info tentang bot\n` +
-          `• waktu - Cek waktu sekarang\n` +
+          `• menu - Tampilkan menu\n` +
+          `• info - Info bot\n` +
+          `• waktu - Cek waktu\n` +
           `• quote - Quote motivasi\n` +
-          `• ping - Cek status bot\n\n` +
-          `💰 *CRYPTOCURRENCY*\n` +
-          `• crypto bitcoin - Harga Bitcoin\n` +
-          `• crypto ethereum - Harga Ethereum\n` +
-          `• crypto bnb - Harga BNB\n` +
-          `Contoh: crypto btc\n\n` +
+          `• ping - Status bot\n\n` +
+          `💰 *CRYPTO*\n` +
+          `• crypto bitcoin\n` +
+          `• crypto ethereum\n\n` +
           `📈 *SAHAM*\n` +
-          `• saham AAPL - Saham Apple (US)\n` +
-          `• saham BBCA.JK - Saham BCA (ID)\n` +
-          `• saham TLKM.JK - Saham Telkom (ID)\n` +
-          `Contoh: saham GOOGL\n\n` +
-          `⚽ *KLASEMEN FOOTBALL*\n` +
-          `• bola epl - Premier League\n` +
-          `• bola laliga - La Liga Spanyol\n` +
-          `• bola seriea - Serie A Italia\n` +
-          `• bola bundesliga - Bundesliga Jerman\n` +
-          `• bola ligue1 - Ligue 1 Prancis\n\n` +
-          `💪 *KESEHATAN & FITNESS*\n` +
-          `• bmi 70 170 - Hitung BMI\n` +
-          `  (berat kg, tinggi cm)\n` +
-          `• kalori 70 170 25 pria - Kalori harian\n` +
-          `  (berat, tinggi, umur, gender)\n` +
-          `• nutrisi nasi - Info nutrisi\n` +
-          `• tips sehat - Tips kesehatan\n` +
-          `• olahraga - Saran workout\n\n` +
-          `Ketik *menu2* untuk fitur lainnya →`;
-        
-        const menu2 = `📋 *MENU BOT (Lanjutan)*\n\n` +
-          `📱 *QR CODE GENERATOR*\n` +
-          `• qr https://google.com - QR biasa\n` +
-          `• qrlogo https://wa.me/628xxx - QR logo\n` +
-          `• qrwarna https://tokosaya.com - QR warna\n` +
-          `Bisa untuk: URL, teks, WhatsApp, WiFi\n\n` +
-          `📚 *CEK STOK BUKU*\n` +
-          `• buku Atomic Habit - Cek ketersediaan\n` +
-          `• buku Rich Dad Poor Dad\n` +
-          `• buku [judul buku]\n\n` +
-          `🎬 *INFO FILM*\n` +
-          `• film Avengers - Info film\n` +
-          `• film Inception - Rating, cast, dll\n` +
-          `• film [judul film]\n\n` +
-          `📰 *BERITA TERKINI*\n` +
-          `• berita - Berita umum Indonesia\n` +
-          `• berita teknologi - Berita tech\n` +
-          `• berita bisnis - Berita ekonomi\n` +
-          `• berita olahraga - Berita sport\n\n` +
-          `💱 *KONVERSI MATA UANG*\n` +
-          `• kurs USD - Kurs Dollar ke Rupiah\n` +
-          `• kurs 100 USD IDR - Konversi 100 USD\n` +
-          `• kurs 50 EUR IDR - Konversi 50 Euro\n` +
-          `Support 170+ mata uang!\n\n` +
+          `• saham AAPL (US)\n` +
+          `• saham BBCA.JK (ID)\n\n` +
+          `⚽ *FOOTBALL*\n` +
+          `• bola epl\n` +
+          `• bola laliga\n\n` +
+          `💪 *KESEHATAN*\n` +
+          `• bmi 70 170\n` +
+          `• kalori 70 170 25 pria\n` +
+          `• nutrisi nasi\n` +
+          `• tips sehat\n` +
+          `• olahraga\n\n` +
+          `📱 *QR CODE*\n` +
+          `• qr https://google.com\n` +
+          `• qrlogo https://wa.me/628xxx\n` +
+          `• qrwarna https://tokosaya.com\n\n` +
+          `📚 *CEK BUKU*\n` +
+          `• buku Atomic Habit\n\n` +
+          `🎬 *FILM*\n` +
+          `• film Avengers\n\n` +
+          `📰 *BERITA*\n` +
+          `• berita\n` +
+          `• berita teknologi\n\n` +
+          `💱 *KURS*\n` +
+          `• kurs USD\n` +
+          `• kurs 100 USD IDR\n\n` +
           `📚 *WIKIPEDIA*\n` +
-          `• wiki Indonesia - Info Wikipedia\n` +
-          `• wiki Soekarno - Tokoh\n` +
-          `• wiki Bitcoin - Teknologi\n` +
-          `• wiki [topik apapun]\n` +
-          `100% GRATIS & Unlimited!\n\n` +
-          `💡 *TIPS:*\n` +
-          `- Chat PRIBADI, bukan di grup\n` +
-          `- Ketik perintah dengan benar\n` +
-          `- Contoh sudah disediakan\n\n` +
+          `• wiki Indonesia\n` +
+          `• wiki [topik]\n\n` +
+          `💡 Chat PRIBADI, bukan grup!\n` +
           `Selamat menggunakan! 🎉`;
         
-        await client.sendText(pengirim, menu1);
-        
-        // Kirim menu2 setelah delay singkat
-        setTimeout(async () => {
-          await client.sendText(pengirim, menu2);
-        }, 1000);
-      }
-      
-      else if (pesan === 'menu2') {
-        const menu2 = `📋 *MENU BOT (Lanjutan)*\n\n` +
-          `📱 *QR CODE GENERATOR*\n` +
-          `• qr https://google.com - QR biasa\n` +
-          `• qrlogo https://wa.me/628xxx - QR logo\n` +
-          `• qrwarna https://tokosaya.com - QR warna\n` +
-          `Bisa untuk: URL, teks, WhatsApp, WiFi\n\n` +
-          `📚 *CEK STOK BUKU*\n` +
-          `• buku Atomic Habit - Cek ketersediaan\n` +
-          `• buku Rich Dad Poor Dad\n` +
-          `• buku [judul buku]\n\n` +
-          `🎬 *INFO FILM*\n` +
-          `• film Avengers - Info film\n` +
-          `• film Inception - Rating, cast, dll\n` +
-          `• film [judul film]\n\n` +
-          `📰 *BERITA TERKINI*\n` +
-          `• berita - Berita umum Indonesia\n` +
-          `• berita teknologi - Berita tech\n` +
-          `• berita bisnis - Berita ekonomi\n` +
-          `• berita olahraga - Berita sport\n\n` +
-          `💱 *KONVERSI MATA UANG*\n` +
-          `• kurs USD - Kurs Dollar ke Rupiah\n` +
-          `• kurs 100 USD IDR - Konversi 100 USD\n` +
-          `• kurs 50 EUR IDR - Konversi 50 Euro\n` +
-          `Support 170+ mata uang!\n\n` +
-          `📚 *WIKIPEDIA*\n` +
-          `• wiki Indonesia - Info Wikipedia\n` +
-          `• wiki Soekarno - Tokoh\n` +
-          `• wiki Bitcoin - Teknologi\n` +
-          `• wiki [topik apapun]\n` +
-          `100% GRATIS & Unlimited!\n\n` +
-          `💡 *TIPS:*\n` +
-          `- Chat PRIBADI, bukan di grup\n` +
-          `- Ketik perintah dengan benar\n` +
-          `- Contoh sudah disediakan\n\n` +
-          `Selamat menggunakan! 🎉`;
-        
-        await client.sendText(pengirim, menu2);
+        await client.sendText(pengirim, menu);
       }
       
       else if (pesan === 'info') {
