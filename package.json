@@ -6,10 +6,16 @@
   "scripts": {
     "start": "node bot.js"
   },
-  "keywords": ["whatsapp", "bot", "chatbot"],
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "chatbot"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@open-wa/wa-automate": "^4.76.0"
+    "@open-wa/wa-automate": "^4.76.0",
+    "axios": "^1.13.2",
+    "yahoo-finance2": "^3.10.1"
   }
 }
