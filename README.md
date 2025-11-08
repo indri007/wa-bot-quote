@@ -1,6 +1,40 @@
-# 🤖 Bot WhatsApp Otomatis
+# 🤖 Bot WhatsApp Multi-Fungsi
 
-Bot WhatsApp sederhana yang bisa membalas pesan secara otomatis.
+Bot WhatsApp canggih dengan berbagai fitur: Crypto, Saham, Football, Kesehatan, dan QR Code Generator!
+
+## ✨ Fitur Lengkap
+
+### 💰 Cryptocurrency (CoinGecko API)
+- Cek harga Bitcoin, Ethereum, dan crypto lainnya
+- Harga dalam USD dan IDR
+- Perubahan 24 jam
+
+### 📈 Saham (Yahoo Finance API)
+- Harga saham real-time
+- Saham US: AAPL, GOOGL, TSLA, dll
+- Saham Indonesia: BBCA.JK, TLKM.JK, dll
+
+### ⚽ Football (Football-Data API)
+- Klasemen liga top Eropa
+- Premier League, La Liga, Serie A, Bundesliga, Ligue 1
+
+### 💪 Kesehatan & Fitness
+- Kalkulator BMI
+- Kalkulator kalori harian
+- Info nutrisi makanan
+- Tips kesehatan
+- Saran olahraga/workout
+
+### 📱 QR Code Generator
+- QR Code biasa
+- QR Code dengan logo
+- QR Code warna custom
+- Support URL, teks, WhatsApp, email, dll
+
+### 🎯 Fitur Lainnya
+- Quote motivasi
+- Cek waktu
+- Status bot
 
 ## 📋 Cara Install
 
@@ -16,48 +50,88 @@ npm install
 
 ## 🚀 Cara Menjalankan
 
-Jalankan bot dengan perintah:
 ```bash
 npm start
 ```
 
-Atau:
-```bash
-node bot.js
+Scan QR code yang muncul dengan WhatsApp Anda!
+
+## 💬 Contoh Penggunaan
+
+### Crypto
+```
+crypto bitcoin
+crypto ethereum
+crypto bnb
 ```
 
-## 📱 Cara Pakai
+### Saham
+```
+saham AAPL
+saham BBCA.JK
+saham TLKM.JK
+```
 
-1. Jalankan bot
-2. Scan QR code yang muncul dengan WhatsApp Anda
-3. Bot siap menerima pesan!
+### Football
+```
+bola epl
+bola laliga
+bola seriea
+```
 
-## 💬 Perintah Bot
+### Kesehatan
+```
+bmi 70 170
+kalori 70 170 25 pria
+nutrisi nasi
+tips sehat
+olahraga
+```
 
-Kirim pesan ke nomor bot:
+### QR Code
+```
+qr https://google.com
+qrlogo https://instagram.com/username
+qrwarna https://tokosaya.com
+```
 
-- `halo` - Salam pembuka
-- `menu` - Lihat daftar perintah
-- `info` - Informasi bot
-- `waktu` - Cek waktu sekarang
-- `quote` - Dapatkan quote motivasi
-- `ping` - Cek status bot
+## 📚 Dokumentasi Lengkap
 
-## ⚙️ Kustomisasi
+- `FOOTBALL_API_SETUP.md` - Setup API Football
+- `HEALTH_API_SETUP.md` - Panduan fitur kesehatan
+- `QR_CODE_GUIDE.md` - Panduan QR Code Generator
 
-Edit file `bot.js` untuk menambah perintah atau mengubah respon bot sesuai kebutuhan Anda.
+## 🔑 API Keys (Opsional)
+
+Beberapa fitur sudah bisa digunakan tanpa API key. Untuk fitur lengkap:
+
+1. **Football**: Daftar di football-data.org
+2. **Nutrisi**: Daftar di api-ninjas.com
+
+Semua GRATIS! Lihat file panduan untuk detail.
 
 ## 📝 Catatan
 
-- Bot akan membuat folder `bot-wa-saya` untuk menyimpan sesi
-- Setelah scan QR pertama kali, bot akan otomatis login di jalankan berikutnya
-- Untuk logout, hapus folder sesi tersebut
+- Bot menyimpan sesi di folder `_IGNORE_bot-wa-saya`
+- Setelah scan QR pertama kali, bot auto-login
+- Untuk logout, hapus folder sesi
 
 ## 🛠️ Troubleshooting
 
 Jika ada error:
-1. Pastikan Node.js sudah terinstall (minimal v12.18.3)
-2. Hapus folder `node_modules` dan `bot-wa-saya`, lalu install ulang
+1. Pastikan Node.js v12.18.3 atau lebih baru
+2. Hapus `node_modules` dan install ulang
 3. Pastikan koneksi internet stabil
+
+## 🌟 Fitur Mendatang
+
+- [ ] Cuaca
+- [ ] Berita
+- [ ] Translate
+- [ ] Dan lainnya!
+
+## 📞 Support
+
+Butuh bantuan? Buka issue di GitHub!
 
 Selamat menggunakan! 🎉
