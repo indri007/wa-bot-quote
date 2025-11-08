@@ -17,7 +17,8 @@ async function authorize() {
     }
 
     const credentials = JSON.parse(fs.readFileSync('credentials.json'));
-    const { client_secret, client_id, redirect_uris } = credentials.installed || credentials.web;
+    const { client_secret, client_id } = credentials.installed || credentials.web;
+    const redirect_uris = credentials.installed?.redirect_uris || credentials.web?.redirect_uris || ['http://localhost'];
     
     const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
