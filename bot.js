@@ -150,7 +150,34 @@ async function start(client) {
       }
       
       else if (pesan === 'info') {
-        await client.sendText(pengirim, '🤖 Bot WhatsApp otomatis siap melayani 24/7!');
+        const infoText = `🤖 *BOT WHATSAPP ASSISTANT*\n\n` +
+          `Bot otomatis dengan 10 fitur lengkap!\n\n` +
+          `✅ Cryptocurrency\n` +
+          `✅ Saham\n` +
+          `✅ Football\n` +
+          `✅ Kesehatan & Fitness\n` +
+          `✅ QR Code Generator\n` +
+          `✅ Cek Stok Buku\n` +
+          `✅ Info Film\n` +
+          `✅ Berita Terkini\n` +
+          `✅ Konversi Mata Uang\n` +
+          `✅ Wikipedia\n\n` +
+          `📝 *CARA PAKAI:*\n` +
+          `1. Chat PRIBADI (bukan di grup)\n` +
+          `2. Ketik "menu" untuk lihat perintah\n` +
+          `3. Ikuti format yang ada\n` +
+          `4. Tunggu balasan bot\n\n` +
+          `💡 *CONTOH:*\n` +
+          `• crypto bitcoin\n` +
+          `• saham BBCA.JK\n` +
+          `• bmi 70 170\n` +
+          `• wiki Indonesia\n\n` +
+          `⚠️ *PENTING:*\n` +
+          `Bot TIDAK balas di grup!\n` +
+          `Hanya balas chat pribadi.\n\n` +
+          `Ketik *menu* untuk mulai! 🚀`;
+        
+        await client.sendText(pengirim, infoText);
       }
       
       else if (pesan === 'waktu') {
