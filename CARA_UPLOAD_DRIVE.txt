@@ -1,0 +1,40 @@
+========================================
+CARA UPLOAD FILE KE GOOGLE DRIVE
+========================================
+
+LANGKAH MUDAH:
+
+1. SETUP GOOGLE CLOUD (Sekali saja)
+   - Buka: https://console.cloud.google.com/
+   - Login: digimetateam@gmail.com
+   - Buat project baru
+   - Enable Google Drive API
+   - Buat OAuth credentials
+   - Download credentials.json
+   - Taruh di folder bot-wa
+
+2. AUTHORIZE (Sekali saja)
+   Buka Command Prompt:
+   
+   cd D:\Downloads\wa-automate-nodejs-master\bot-wa
+   node authorize-drive.js
+   
+   - Copy URL yang muncul
+   - Buka di browser
+   - Login dengan digimetateam@gmail.com
+   - Izinkan akses
+   - Copy kode
+   - Paste di Command Prompt
+
+3. UPLOAD FILE
+   
+   node upload-to-drive.js
+   
+   SELESAI! File akan tersimpan di:
+   https://drive.google.com/drive/folders/1AvdFg9yLWyQg9UL1jKJUNU6KESjd-ugO
+
+========================================
+
+PANDUAN LENGKAP: Baca file SETUP_GOOGLE_DRIVE.md
+
+========================================

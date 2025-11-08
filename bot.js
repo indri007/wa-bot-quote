@@ -3,6 +3,7 @@ const wa = require('@open-wa/wa-automate');
 const fs = require('fs');
 const axios = require('axios');
 const yahooFinance = require('yahoo-finance2').default;
+const { checkBook } = require('./check-book');
 
 // Fungsi utama bot
 async function start(client) {
@@ -62,6 +63,9 @@ async function start(client) {
           `• qr https://google.com - QR Code biasa\n` +
           `• qrlogo https://google.com - QR dengan logo\n` +
           `• qrwarna https://google.com - QR warna custom\n\n` +
+          `📚 *CEK STOK BUKU*\n` +
+          `• buku Atomic Habit - Cek ketersediaan buku\n` +
+          `• buku [judul] - Cek buku lainnya\n\n` +
           `Silakan pilih! 😊`;
         await client.sendText(pengirim, menu);
       }
@@ -499,6 +503,66 @@ async function start(client) {
         } catch (error) {
           console.error('Error generating colored QR:', error);
           await client.sendText(pengirim, '❌ Gagal membuat QR Code. Coba lagi.');
+        }
+      }
+      
+      // Fitur Cek Stok Buku dari Google Drive
+      else if (pesan.startsWith('buku ')) {
+        const judulBuku = message.body.substring(5).trim();
+        
+        if (!judulBuku) {
+          await client.sendText(pengirim, '❌ Format salah!\n\nContoh: buku Atomic Habit');
+          return;
+        }
+        
+        try {
+          await client.sendText(pengirim, '⏳ Mengecek ketersediaan buku...');
+          
+          // Cek apakah credentials dan token ada
+          if (!fs.existsSync('./credentials.json') || !fs.existsSync('./token.json')) {
+            await client.sendText(pengirim, 
+              '⚠️ Fitur cek buku belum disetup.\n\n' +
+              'Admin perlu setup Google Drive API terlebih dahulu.\n' +
+              'Lihat file: SETUP_GOOGLE_DRIVE.md'
+            );
+            return;
+          }
+          
+          // Cek buku di Google Drive
+          const result = await checkBook(judulBuku);
+          
+          if (result.found) {
+            // Buku READY
+            const pesanReady = `✅ *BUKU READY!*\n\n` +
+              `📚 Judul: ${result.fileName}\n` +
+              `📦 Status: TERSEDIA\n\n` +
+              `💰 Silakan lakukan pembayaran:\n` +
+              `Scan QR Code di katalog atau hubungi admin untuk info pembayaran.\n\n` +
+              `Terima kasih! 🙏`;
+            
+            await client.sendText(pengirim, pesanReady);
+            
+            // Optional: Kirim QR Code pembayaran
+            // Uncomment jika sudah ada QR pembayaran
+            // await client.sendImage(pengirim, './qr-pembayaran.png', 'qr-pembayaran.png', 'QR Code Pembayaran');
+            
+          } else {
+            // Buku TIDAK READY
+            const pesanTidakReady = `❌ *BUKU TIDAK READY*\n\n` +
+              `📚 Judul: ${judulBuku}\n` +
+              `📦 Status: TIDAK TERSEDIA\n\n` +
+              `Maaf, buku ini sedang tidak tersedia.\n` +
+              `Silakan coba judul lain atau hubungi admin untuk info lebih lanjut.`;
+            
+            await client.sendText(pengirim, pesanTidakReady);
+          }
+          
+        } catch (error) {
+          console.error('Error cek buku:', error);
+          await client.sendText(pengirim, 
+            '❌ Gagal mengecek buku.\n\n' +
+            'Silakan coba lagi atau hubungi admin.'
+          );
         }
       }
       
