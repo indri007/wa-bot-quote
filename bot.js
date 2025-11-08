@@ -78,6 +78,9 @@ async function start(client) {
           `• kurs USD - Kurs Dollar ke Rupiah\n` +
           `• kurs 100 USD IDR - Konversi 100 USD ke IDR\n` +
           `• kurs [jumlah] [dari] [ke] - Konversi mata uang\n\n` +
+          `📚 *WIKIPEDIA*\n` +
+          `• wiki Indonesia - Info dari Wikipedia\n` +
+          `• wiki [topik] - Cari topik lainnya\n\n` +
           `Silakan pilih! 😊`;
         await client.sendText(pengirim, menu);
       }
@@ -824,6 +827,134 @@ async function start(client) {
           } else {
             await client.sendText(pengirim, '❌ Gagal mengambil kurs. Coba lagi nanti.');
           }
+        }
+      }
+      
+      // Fitur Wikipedia (100% GRATIS, tanpa API key)
+      else if (pesan.startsWith('wiki ')) {
+        const topik = message.body.substring(5).trim();
+        
+        if (!topik) {
+          await client.sendText(pengirim, '❌ Format salah!\n\nContoh: wiki Indonesia');
+          return;
+        }
+        
+        try {
+          await client.sendText(pengirim, '⏳ Mencari di Wikipedia...');
+          
+          // Wikipedia API (GRATIS, tanpa limit, tanpa API key!)
+          const searchResponse = await axios.get('https://id.wikipedia.org/w/api.php', {
+            params: {
+              action: 'query',
+              format: 'json',
+              list: 'search',
+              srsearch: topik,
+              utf8: 1
+            }
+          });
+          
+          if (searchResponse.data.query.search.length > 0) {
+            const pageId = searchResponse.data.query.search[0].pageid;
+            const title = searchResponse.data.query.search[0].title;
+            
+            // Ambil konten artikel
+            const contentResponse = await axios.get('https://id.wikipedia.org/w/api.php', {
+              params: {
+                action: 'query',
+                format: 'json',
+                prop: 'extracts|pageimages',
+                exintro: true,
+                explaintext: true,
+                piprop: 'original',
+                pageids: pageId
+              }
+            });
+            
+            const page = contentResponse.data.query.pages[pageId];
+            let extract = page.extract || 'Tidak ada deskripsi tersedia.';
+            
+            // Batasi panjang teks (max 1000 karakter)
+            if (extract.length > 1000) {
+              extract = extract.substring(0, 1000) + '...';
+            }
+            
+            const wikiUrl = `https://id.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`;
+            
+            const wikiInfo = `📚 *${title}*\n\n` +
+              `${extract}\n\n` +
+              `🔗 Baca selengkapnya:\n${wikiUrl}\n\n` +
+              `Sumber: Wikipedia Indonesia`;
+            
+            await client.sendText(pengirim, wikiInfo);
+            
+            // Kirim gambar jika ada
+            if (page.original && page.original.source) {
+              try {
+                await client.sendImage(
+                  pengirim, 
+                  page.original.source, 
+                  'wiki.jpg', 
+                  title
+                );
+              } catch (err) {
+                console.log('Gagal kirim gambar Wikipedia');
+              }
+            }
+            
+          } else {
+            // Coba cari di Wikipedia English
+            const searchResponseEN = await axios.get('https://en.wikipedia.org/w/api.php', {
+              params: {
+                action: 'query',
+                format: 'json',
+                list: 'search',
+                srsearch: topik,
+                utf8: 1
+              }
+            });
+            
+            if (searchResponseEN.data.query.search.length > 0) {
+              const pageId = searchResponseEN.data.query.search[0].pageid;
+              const title = searchResponseEN.data.query.search[0].title;
+              
+              const contentResponse = await axios.get('https://en.wikipedia.org/w/api.php', {
+                params: {
+                  action: 'query',
+                  format: 'json',
+                  prop: 'extracts',
+                  exintro: true,
+                  explaintext: true,
+                  pageids: pageId
+                }
+              });
+              
+              const page = contentResponse.data.query.pages[pageId];
+              let extract = page.extract || 'No description available.';
+              
+              if (extract.length > 1000) {
+                extract = extract.substring(0, 1000) + '...';
+              }
+              
+              const wikiUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`;
+              
+              const wikiInfo = `📚 *${title}*\n\n` +
+                `${extract}\n\n` +
+                `🔗 Read more:\n${wikiUrl}\n\n` +
+                `Source: Wikipedia (English)`;
+              
+              await client.sendText(pengirim, wikiInfo);
+              
+            } else {
+              await client.sendText(pengirim, 
+                `❌ Topik "${topik}" tidak ditemukan di Wikipedia.\n\n` +
+                `Coba dengan kata kunci lain atau ejaan yang berbeda.`
+              );
+            }
+          }
+          
+        } catch (error) {
+          console.error('Error fetching Wikipedia:', error);
+          await client.sendText(pengirim, '❌ Gagal mengambil data dari Wikipedia. Coba lagi nanti.');
         }
       }
       
