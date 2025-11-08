@@ -19,6 +19,12 @@ async function start(client) {
 
       console.log(`📩 Pesan dari ${pengirim}: ${message.body}`);
 
+      // FILTER: Abaikan pesan dari grup, hanya balas chat pribadi
+      if (pengirim.includes('@g.us')) {
+        console.log('⚠️ Pesan dari grup diabaikan');
+        return; // Tidak balas pesan grup
+      }
+
       // Respon otomatis
       if (pesan === 'halo' || pesan === 'hi' || pesan === 'hai') {
         await client.sendText(pengirim, '👋 Halo! Ada yang bisa saya bantu?\n\nKetik *menu* untuk lihat perintah.');
