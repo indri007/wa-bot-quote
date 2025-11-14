@@ -4,6 +4,28 @@ const fs = require('fs');
 const axios = require('axios');
 const yahooFinance = require('yahoo-finance2').default;
 const { checkBook } = require('./check-book');
+import express from "express";
+const app = express();
+
+// Akses folder QR secara publik
+app.use('/qr', express.static('qr'));
+
+// Endpoint auto download
+app.get('/qr/download', (req, res) => {
+  const file = `${process.cwd()}/qr/latest.png`;
+  res.download(file, 'wa-qr.png', (err) => {
+    if (err) {
+      console.error("❌ Error saat download:", err);
+      res.status(500).send("Gagal download QR");
+    }
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 QR Server running on port ${PORT}`);
+});
 
 // Fungsi utama bot
 async function start(client) {
@@ -1014,13 +1036,35 @@ async function start(client) {
 }
 
 // Event untuk menyimpan QR code sebagai gambar
+// wa.ev.on('qr.**', async (qrcode, sessionId) => {
+//   const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
+//   const filename = `qr_code_${sessionId}.png`;
+//   fs.writeFileSync(filename, imageBuffer);
+//   console.log(`\n✅ QR Code disimpan sebagai: ${filename}`);
+//   console.log('📱 Buka file tersebut dan scan dengan WhatsApp Anda!\n');
+// });
 wa.ev.on('qr.**', async (qrcode, sessionId) => {
-  const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
-  const filename = `qr_code_${sessionId}.png`;
-  fs.writeFileSync(filename, imageBuffer);
-  console.log(`\n✅ QR Code disimpan sebagai: ${filename}`);
-  console.log('📱 Buka file tersebut dan scan dengan WhatsApp Anda!\n');
+  try {
+    if (!fs.existsSync('./qr')) {
+      fs.mkdirSync('./qr');
+    }
+
+    const imageBuffer = Buffer.from(
+      qrcode.replace('data:image/png;base64,', ''),
+      'base64'
+    );
+
+    const filename = './qr/latest.png';
+    fs.writeFileSync(filename, imageBuffer);
+
+    console.log("\n✅ QR Code berhasil dibuat di: ./qr/latest.png");
+    console.log("🔗 Download otomatis QR: https://<domain-kamu>/qr/download\n");
+
+  } catch (err) {
+    console.error("❌ Gagal menyimpan QR:", err);
+  }
 });
+
 
 // Jalankan bot
 wa.create({
