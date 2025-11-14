@@ -204,7 +204,7 @@ async function start(client) {
           // Panggil Football-Data API (gratis, tanpa API key untuk data terbatas)
           const response = await axios.get(`https://api.football-data.org/v4/competitions/${selectedLeague.id}/standings`, {
             headers: {
-              'X-Auth-Token': 'YOUR_API_KEY_HERE' // Bisa kosong untuk free tier terbatas
+              'X-Auth-Token': '692831933e644d3eb42f80e62856fe67' // Bisa kosong untuk free tier terbatas
             }
           });
           
@@ -684,7 +684,7 @@ async function start(client) {
         try {
           await client.sendText(pengirim, '⏳ Mengambil berita terkini...');
           
-          const apiKey = 'YOUR_NEWSAPI_KEY'; // Ganti dengan API key dari newsapi.org
+          const apiKey = '05f96aa3312e44b0a8d7807e12733e5c'; // Ganti dengan API key dari newsapi.org
           
           // Tentukan kategori berdasarkan pesan
           let category = 'general';
