@@ -19,7 +19,4 @@
     "googleapis": "^165.0.0",
     "yahoo-finance2": "^3.10.1"
   }
-  "scripts": {
-    "start": "node bot.js"
-  }
 }
