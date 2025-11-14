@@ -33,23 +33,44 @@ async function start(client) {
       
       else if (pesan === 'menu') {
         const menu = `📋 *MENU BOT WHATSAPP*\n\n` +
-          `💰 *CRYPTO (COINGECKO)*\n` +
-          `• crypto bitcoin - Cek harga BTC\n` +
-          `• crypto ethereum - Cek harga ETH\n\n` +
+          `🎯 *PERINTAH DASAR*\n` +
+          `• menu - Tampilkan menu\n` +
+          `• info - Info bot\n` +
+          `• waktu - Cek waktu\n` +
+          `• quote - Quote motivasi\n` +
+          `• ping - Status bot\n\n` +
+          `💰 *CRYPTO*\n` +
+          `• crypto bitcoin\n` +
+          `• crypto ethereum\n\n` +
           `📈 *SAHAM*\n` +
-          `• saham AAPL - Saham US\n` +
-          `• saham BBCA.JK - Saham IDX\n\n` +
+          `• saham AAPL (US)\n` +
+          `• saham BBCA.JK (ID)\n\n` +
+          `⚽ *FOOTBALL*\n` +
+          `• bola epl\n` +
+          `• bola laliga\n\n` +
+          `💪 *KESEHATAN*\n` +
+          `• bmi 70 170\n` +
+          `• kalori 70 170 25 pria\n` +
+          `• nutrisi nasi\n` +
+          `• tips sehat\n` +
+          `• olahraga\n\n` +
           `📱 *QR CODE*\n` +
-          `• qr [teks/url] - QR basic\n` +
-          `• qrlogo [teks/url] - QR dengan logo\n` +
-          `• qrwarna [teks/url] - QR berwarna\n\n` +
-          `� *KURS MATA UANG*\n` +
-          `• kurs USD - Cek USD ke IDR\n` +
-          `• kurs 100 USD IDR - Konversi jumlah\n` +
-          `• kurs EUR JPY - Kurs antar mata uang\n\n` +
+          `• qr https://google.com\n` +
+          `• qrlogo https://wa.me/628xxx\n` +
+          `• qrwarna https://tokosaya.com\n\n` +
+          `📚 *CEK BUKU*\n` +
+          `• buku Atomic Habit\n\n` +
+          `🎬 *FILM*\n` +
+          `• film Avengers\n\n` +
+          `📰 *BERITA*\n` +
+          `• berita\n` +
+          `• berita teknologi\n\n` +
+          `💱 *KURS*\n` +
+          `• kurs USD\n` +
+          `• kurs 100 USD IDR\n\n` +
           `📚 *WIKIPEDIA*\n` +
-          `• wiki [topik] - Cari di Wikipedia ID\n` +
-          `• Contoh: wiki Indonesia\n\n` +
+          `• wiki Indonesia\n` +
+          `• wiki [topik]\n\n` +
           `💡 Chat PRIBADI, bukan grup!\n` +
           `Selamat menggunakan! 🎉`;
         
@@ -58,11 +79,16 @@ async function start(client) {
       
       else if (pesan === 'info') {
         const infoText = `🤖 *BOT WHATSAPP ASSISTANT*\n\n` +
-          `Bot otomatis dengan 5 fitur utama!\n\n` +
-          `✅ Crypto (CoinGecko API)\n` +
-          `✅ Saham (Yahoo Finance)\n` +
+          `Bot otomatis dengan 10 fitur lengkap!\n\n` +
+          `✅ Cryptocurrency\n` +
+          `✅ Saham\n` +
+          `✅ Football\n` +
+          `✅ Kesehatan & Fitness\n` +
           `✅ QR Code Generator\n` +
-          `✅ Kurs Mata Uang\n` +
+          `✅ Cek Stok Buku\n` +
+          `✅ Info Film\n` +
+          `✅ Berita Terkini\n` +
+          `✅ Konversi Mata Uang\n` +
           `✅ Wikipedia\n\n` +
           `📝 *CARA PAKAI:*\n` +
           `1. Chat PRIBADI (bukan di grup)\n` +
@@ -72,8 +98,7 @@ async function start(client) {
           `💡 *CONTOH:*\n` +
           `• crypto bitcoin\n` +
           `• saham BBCA.JK\n` +
-          `• qr https://google.com\n` +
-          `• kurs 100 USD IDR\n` +
+          `• bmi 70 170\n` +
           `• wiki Indonesia\n\n` +
           `⚠️ *PENTING:*\n` +
           `Bot TIDAK balas di grup!\n` +
@@ -1021,7 +1046,6 @@ wa.ev.on('qr.**', async (qrcode, sessionId) => {
   console.log(`\n✅ QR Code disimpan sebagai: ${filename}`);
   console.log('📱 Buka file tersebut dan scan dengan WhatsApp Anda!\n');
 });
-
 
 // Jalankan bot
 wa.create({
