@@ -4,7 +4,9 @@ const { google } = require('googleapis');
 const readline = require('readline');
 
 // Scopes yang dibutuhkan
-const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
+// drive.file = hanya file yang dibuat app
+// drive = semua file di Drive (RECOMMENDED untuk bot)
+const SCOPES = ['https://www.googleapis.com/auth/drive'];
 const TOKEN_PATH = 'token.json';
 
 async function authorize() {

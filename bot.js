@@ -2,7 +2,8 @@
 const wa = require('@open-wa/wa-automate');
 const fs = require('fs');
 const axios = require('axios');
-const yahooFinance = require('yahoo-finance2').default;
+const YahooFinance = require('yahoo-finance2').default;
+const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 const { checkBook } = require('./check-book');
 
 // Fungsi utama bot
@@ -65,9 +66,9 @@ async function start(client) {
           `📰 *BERITA*\n` +
           `• berita\n` +
           `• berita teknologi\n\n` +
-          `💱 *KURS*\n` +
-          `• kurs USD\n` +
-          `• kurs 100 USD IDR\n\n` +
+          // `💱 *KURS*\n` +
+          // `• kurs USD\n` +
+          // `• kurs 100 USD IDR\n\n` +
           `📚 *WIKIPEDIA*\n` +
           `• wiki Indonesia\n` +
           `• wiki [topik]\n\n` +
@@ -88,7 +89,7 @@ async function start(client) {
           `✅ Cek Stok Buku\n` +
           `✅ Info Film\n` +
           `✅ Berita Terkini\n` +
-          `✅ Konversi Mata Uang\n` +
+          //`✅ Konversi Mata Uang\n` +
           `✅ Wikipedia\n\n` +
           `📝 *CARA PAKAI:*\n` +
           `1. Chat PRIBADI (bukan di grup)\n` +
@@ -132,13 +133,12 @@ async function start(client) {
       // Fitur Saham dengan Yahoo Finance API
       else if (pesan.startsWith('saham ')) {
         const symbol = pesan.replace('saham ', '').trim().toUpperCase();
-        
         try {
           await client.sendText(pengirim, '⏳ Mengambil data saham...');
-          
-          // Panggil Yahoo Finance API (gratis, tanpa API key)
+
+          // Ambil data saham menggunakan yahooFinance yang sudah di-import
           const quote = await yahooFinance.quote(symbol);
-          
+
           if (quote && quote.regularMarketPrice) {
             const price = quote.regularMarketPrice.toLocaleString('en-US', {
               minimumFractionDigits: 2,
@@ -149,32 +149,41 @@ async function start(client) {
             const changeEmoji = quote.regularMarketChange > 0 ? '📈' : '📉';
             const currency = quote.currency || 'USD';
             const marketCap = quote.marketCap ? (quote.marketCap / 1e9).toFixed(2) + 'B' : 'N/A';
-            
+
             let stockInfo = `📈 *${quote.symbol}*\n`;
-            if (quote.longName) stockInfo += `${quote.longName}\n\n`;
-            else stockInfo += '\n';
-            
-            stockInfo += `💵 Harga: ${currency} ${price}\n` +
+            stockInfo += quote.longName ? `${quote.longName}\n\n` : '\n';
+
+            stockInfo +=
+              `💵 Harga: ${currency} ${price}\n` +
               `${changeEmoji} Perubahan: ${change} (${changePercent}%)\n` +
               `📊 Market Cap: ${currency} ${marketCap}\n`;
-            
+
             if (quote.regularMarketOpen) {
               stockInfo += `🔓 Open: ${currency} ${quote.regularMarketOpen.toFixed(2)}\n`;
             }
+
             if (quote.regularMarketDayHigh && quote.regularMarketDayLow) {
               stockInfo += `📊 High/Low: ${quote.regularMarketDayHigh.toFixed(2)} / ${quote.regularMarketDayLow.toFixed(2)}\n`;
             }
-            
+
             stockInfo += `\nData dari Yahoo Finance`;
-            
+
             await client.sendText(pengirim, stockInfo);
           } else {
-            await client.sendText(pengirim, `❌ Saham "${symbol}" tidak ditemukan.\n\nContoh:\n• saham AAPL (Apple)\n• saham BBCA.JK (BCA)\n• saham TLKM.JK (Telkom)`);
+            await client.sendText(
+              pengirim,
+              `❌ Saham "${symbol}" tidak ditemukan.\n\nContoh:\n• AAPL\n• BBCA.JK\n• TLKM.JK`
+            );
           }
+
         } catch (error) {
           console.error('Error fetching stock:', error);
-          await client.sendText(pengirim, `❌ Gagal mengambil data saham "${symbol}".\n\nPastikan kode saham benar.\nContoh: AAPL, GOOGL, BBCA.JK`);
+          await client.sendText(
+            pengirim,
+            `❌ Gagal mengambil data saham "${symbol}".\n\nPastikan kode saham benar.\nContoh: AAPL, GOOGL, BBCA.JK`
+          );
         }
+
       }
       
       // Fitur Football dengan API-Football (gratis)
@@ -466,18 +475,9 @@ async function start(client) {
           // Download QR code
           const response = await axios.get(qrUrl, { responseType: 'arraybuffer' });
           const buffer = Buffer.from(response.data, 'binary');
-          // Convert ke base64 (tanpa prefix!)
-          const base64Image = buffer.toString('base64');
-
-          // Kirim ke whatsapp
-          // await client.sendImage(
-          //   pengirim,
-          //   base64Image,        // <== WAJIB base64 murni
-          //   'qrcode.png',
-          //   `✅ QR Code berhasil dibuat!\n\nIsi: ${text.substring(0, 100)}${text.length > 100 ? '...' : ''}`
-          // );
-          // Kirim sebagai gambar
-          await client.sendImage(
+          
+          // Kirim sebagai gambar menggunakan sendFile (lebih reliable)
+          await client.sendFile(
             pengirim,
             `data:image/png;base64,${buffer.toString('base64')}`,
             'qrcode.png',
@@ -507,7 +507,7 @@ async function start(client) {
           const response = await axios.get(qrUrl, { responseType: 'arraybuffer' });
           const buffer = Buffer.from(response.data, 'binary');
           
-          await client.sendImage(
+          await client.sendFile(
             pengirim,
             `data:image/png;base64,${buffer.toString('base64')}`,
             'qrcode_logo.png',
@@ -537,7 +537,7 @@ async function start(client) {
           const response = await axios.get(qrUrl, { responseType: 'arraybuffer' });
           const buffer = Buffer.from(response.data, 'binary');
           
-          await client.sendImage(
+          await client.sendFile(
             pengirim,
             `data:image/png;base64,${buffer.toString('base64')}`,
             'qrcode_color.png',
@@ -690,6 +690,8 @@ async function start(client) {
       
       // Fitur Berita dengan NewsAPI
       else if (pesan.startsWith('berita')) {
+        console.log('📰 Berita command detected:', pesan);
+        
         try {
           await client.sendText(pengirim, '⏳ Mengambil berita terkini...');
           
@@ -697,19 +699,26 @@ async function start(client) {
           
           // Tentukan kategori berdasarkan pesan
           let category = 'general';
-          let country = 'id'; // Indonesia
+          let country = 'us'; // US karena Indonesia tidak support di NewsAPI free tier
           let query = '';
           
           if (pesan.includes('teknologi') || pesan.includes('technology')) {
             category = 'technology';
+            console.log('📱 Category: technology');
           } else if (pesan.includes('bisnis') || pesan.includes('business')) {
             category = 'business';
+            console.log('💼 Category: business');
           } else if (pesan.includes('olahraga') || pesan.includes('sports')) {
             category = 'sports';
+            console.log('⚽ Category: sports');
           } else if (pesan.includes('kesehatan') || pesan.includes('health')) {
             category = 'health';
+            console.log('🏥 Category: health');
           } else if (pesan.includes('hiburan') || pesan.includes('entertainment')) {
             category = 'entertainment';
+            console.log('🎬 Category: entertainment');
+          } else {
+            console.log('📰 Category: general');
           }
           
           const response = await axios.get('https://newsapi.org/v2/top-headlines', {
@@ -804,8 +813,9 @@ async function start(client) {
             return;
           }
           
-          const response = await axios.get(`https://api.apilayer.com/fixer/convert`, {
+          const response = await axios.get(`http://data.fixer.io/api/convert`, {
             params: {
+              access_key : apiKey,
               from: from,
               to: to,
               amount: amount
@@ -878,6 +888,9 @@ async function start(client) {
               list: 'search',
               srsearch: topik,
               utf8: 1
+            },
+            headers: {
+              'User-Agent': 'WhatsAppBot/1.0 (https://github.com/yourbot; bot@example.com)'
             }
           });
           
@@ -895,6 +908,9 @@ async function start(client) {
                 explaintext: true,
                 piprop: 'original',
                 pageids: pageId
+              },
+              headers: {
+                'User-Agent': 'WhatsAppBot/1.0 (https://github.com/yourbot; bot@example.com)'
               }
             });
             
@@ -938,6 +954,9 @@ async function start(client) {
                 list: 'search',
                 srsearch: topik,
                 utf8: 1
+              },
+              headers: {
+                'User-Agent': 'WhatsAppBot/1.0 (https://github.com/yourbot; bot@example.com)'
               }
             });
             
@@ -953,6 +972,9 @@ async function start(client) {
                   exintro: true,
                   explaintext: true,
                   pageids: pageId
+                },
+                headers: {
+                  'User-Agent': 'WhatsAppBot/1.0 (https://github.com/yourbot; bot@example.com)'
                 }
               });
               
@@ -1065,6 +1087,7 @@ wa.create({
   qrTimeout: 0,
   disableSpins: true,
   logConsole: false,
+  useChrome: true
 })
 .then(client => start(client))
 .catch(error => console.error('❌ Error:', error));
