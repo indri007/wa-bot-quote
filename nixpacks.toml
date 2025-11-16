@@ -1,45 +1,8 @@
 # Nixpacks configuration for Bot WhatsApp
 
 [phases.setup]
-nixPkgs = [
-  "nodejs_20",
-  "chromium",
-  "nss",
-  "atk",
-  "atkbridge",
-  "cups",
-  "expat",
-  "fontconfig",
-  "freetype",
-  "gtk3",
-  "harfbuzz",
-  "libX11",
-  "libXcomposite",
-  "libXdamage",
-  "libXext",
-  "libXfixes",
-  "libXrandr",
-  "libxcb",
-  "libxkbcommon",
-  "mesa",
-  "pango",
-  "alsa-lib"
-]
-
-aptPkgs = [
-  "libnss3",
-  "libatk1.0-0",
-  "libatk-bridge2.0-0",
-  "libcups2",
-  "libgbm1",
-  "libasound2",
-  "libpangocairo-1.0-0",
-  "libxss1",
-  "libgtk-3-0",
-  "fonts-liberation",
-  "wget",
-  "curl"
-]
+nixPkgs = ["nodejs_20"]
+aptPkgs = ["chromium", "libnss3", "libatk1.0-0", "libatk-bridge2.0-0", "libcups2", "libgbm1", "libasound2", "libpangocairo-1.0-0", "libxss1", "libgtk-3-0"]
 
 [phases.install]
 cmds = ["npm ci --only=production"]
