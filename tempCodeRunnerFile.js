@@ -204,7 +204,7 @@ async function start(client) {
           // Panggil Football-Data API (gratis, tanpa API key untuk data terbatas)
           const response = await axios.get(`https://api.football-data.org/v4/competitions/${selectedLeague.id}/standings`, {
             headers: {
-              'X-Auth-Token': '692831933e644d3eb42f80e62856fe67' // Bisa kosong untuk free tier terbatas
+              'X-Auth-Token': 'YOUR_API_KEY_HERE' // Bisa kosong untuk free tier terbatas
             }
           });
           
@@ -366,7 +366,7 @@ async function start(client) {
           // Gunakan API Nutrition gratis
           const response = await axios.get(`https://api.api-ninjas.com/v1/nutrition?query=${makanan}`, {
             headers: {
-              'X-Api-Key': 'flCk9ITCjlM5UgJNOGvrIw==htM5mkHmOb34IzBA' // Gratis di api-ninjas.com
+              'X-Api-Key': 'YOUR_API_NINJAS_KEY' // Gratis di api-ninjas.com
             }
           });
           
@@ -614,7 +614,7 @@ async function start(client) {
           
           // OMDB API (gratis, tanpa API key untuk pencarian terbatas)
           // Untuk fitur lengkap, daftar API key gratis di: http://www.omdbapi.com/apikey.aspx
-          const apiKey = 'b1a7b542'; // Ganti dengan API key Anda
+          const apiKey = 'YOUR_OMDB_API_KEY'; // Ganti dengan API key Anda
           
           const response = await axios.get(`http://www.omdbapi.com/`, {
             params: {
@@ -684,7 +684,7 @@ async function start(client) {
         try {
           await client.sendText(pengirim, '⏳ Mengambil berita terkini...');
           
-          const apiKey = '05f96aa3312e44b0a8d7807e12733e5c'; // Ganti dengan API key dari newsapi.org
+          const apiKey = 'YOUR_NEWSAPI_KEY'; // Ganti dengan API key dari newsapi.org
           
           // Tentukan kategori berdasarkan pesan
           let category = 'general';
@@ -765,7 +765,7 @@ async function start(client) {
         try {
           await client.sendText(pengirim, '⏳ Mengambil kurs terkini...');
           
-          const apiKey = '4c853c89575ee427ddd5eeb2af42da45'; // Ganti dengan API key dari fixer.io
+          const apiKey = 'YOUR_FIXER_API_KEY'; // Ganti dengan API key dari fixer.io
           
           // Parse perintah
           const parts = message.body.split(' ').filter(p => p);
