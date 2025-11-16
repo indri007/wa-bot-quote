@@ -1,15 +1,20 @@
+# Nixpacks configuration for Bot WhatsApp
+
 [phases.setup]
-NODE_VERSION = "20"
+nixPkgs = ["nodejs_20", "chromium"]
+aptPkgs = [
+  "libnss3", "libatk1.0-0", "libatk-bridge2.0-0",
+  "libcups2", "libgbm1", "libasound2",
+  "libpangocairo-1.0-0", "libxss1", "libgtk-3-0"
+]
 
 [phases.install]
-cmds = ["npm install"]
-
-[phases.build]
-cmds = []
+cmds = ["npm ci --only=production"]
 
 [start]
 cmd = "node bot.js"
 
 [variables]
 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
+PUPPETEER_EXECUTABLE_PATH = "/usr/bin/chromium"
 NODE_ENV = "production"
