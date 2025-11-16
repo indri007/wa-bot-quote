@@ -31,6 +31,18 @@ node bot.js
 
 ### Deploy ke Coolify
 
+**Opsi 1: Nixpacks (Recommended)**
+
+```bash
+# Push ke Git
+git push origin main
+
+# Deploy di Coolify dengan Nixpacks
+# Lihat: DEPLOY_NIXPACKS.md
+```
+
+**Opsi 2: Docker**
+
 ```bash
 # Test Docker lokal
 .\test-docker.ps1  # Windows
@@ -39,7 +51,7 @@ node bot.js
 # Push ke Git
 git push origin main
 
-# Deploy di Coolify
+# Deploy di Coolify dengan Dockerfile
 # Lihat: QUICK_START_DEPLOY.md
 ```
 
@@ -134,8 +146,12 @@ docker-compose up -d
 
 ## 📚 Dokumentasi
 
-- [QUICK_START_DEPLOY.md](./QUICK_START_DEPLOY.md) - Deploy cepat ke Coolify
+### Deployment
+- [DEPLOY_NIXPACKS.md](./DEPLOY_NIXPACKS.md) - Deploy dengan Nixpacks (Recommended)
+- [QUICK_START_DEPLOY.md](./QUICK_START_DEPLOY.md) - Deploy cepat dengan Docker
 - [DEPLOY_COOLIFY.md](./DEPLOY_COOLIFY.md) - Panduan lengkap deployment
+
+### Setup
 - [SETUP_GOOGLE_DRIVE.md](./SETUP_GOOGLE_DRIVE.md) - Setup Google Drive API
 - [CARA_UPLOAD_BUKU.md](./CARA_UPLOAD_BUKU.md) - Upload buku ke Drive
 

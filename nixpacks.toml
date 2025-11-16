@@ -1,11 +1,45 @@
+# Nixpacks configuration for Bot WhatsApp
+
 [phases.setup]
-NODE_VERSION = "20"
+nixPkgs = [
+  "nodejs_18",
+  "chromium"
+]
+nixLibs = [
+  "nss",
+  "freetype",
+  "harfbuzz",
+  "fontconfig",
+  "libX11",
+  "libXcomposite",
+  "libXdamage",
+  "libXext",
+  "libXfixes",
+  "libXrandr",
+  "libxcb",
+  "libxkbcommon",
+  "mesa",
+  "expat",
+  "alsa-lib",
+  "at-spi2-atk",
+  "at-spi2-core",
+  "cups",
+  "dbus",
+  "gtk3",
+  "pango",
+  "cairo"
+]
 
 [phases.install]
-cmds = ["npm install"]
+cmds = ["npm ci --only=production"]
 
 [phases.build]
-cmds = []
+cmds = ["echo 'Build complete'"]
 
 [start]
 cmd = "node bot.js"
+
+[variables]
+PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
+PUPPETEER_EXECUTABLE_PATH = "chromium"
+NODE_ENV = "production"
