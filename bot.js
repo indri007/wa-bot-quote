@@ -470,19 +470,19 @@ async function start(client) {
           const base64Image = buffer.toString('base64');
 
           // Kirim ke whatsapp
-          await client.sendImage(
-            pengirim,
-            base64Image,        // <== WAJIB base64 murni
-            'qrcode.png',
-            `✅ QR Code berhasil dibuat!\n\nIsi: ${text.substring(0, 100)}${text.length > 100 ? '...' : ''}`
-          );
-          // Kirim sebagai gambar
           // await client.sendImage(
           //   pengirim,
-          //   `data:image/png;base64,${buffer.toString('base64')}`,
+          //   base64Image,        // <== WAJIB base64 murni
           //   'qrcode.png',
           //   `✅ QR Code berhasil dibuat!\n\nIsi: ${text.substring(0, 100)}${text.length > 100 ? '...' : ''}`
           // );
+          // Kirim sebagai gambar
+          await client.sendImage(
+            pengirim,
+            `data:image/png;base64,${buffer.toString('base64')}`,
+            'qrcode.png',
+            `✅ QR Code berhasil dibuat!\n\nIsi: ${text.substring(0, 100)}${text.length > 100 ? '...' : ''}`
+          );
         } catch (error) {
           console.error('Error generating QR:', error);
           await client.sendText(pengirim, '❌ Gagal membuat QR Code. Coba lagi.');
