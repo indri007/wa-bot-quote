@@ -1,137 +1,217 @@
-# 🤖 Bot WhatsApp Multi-Fungsi
+# 🤖 Bot WhatsApp Multi-Fitur
 
-Bot WhatsApp canggih dengan berbagai fitur: Crypto, Saham, Football, Kesehatan, dan QR Code Generator!
+Bot WhatsApp otomatis dengan 10+ fitur lengkap menggunakan Node.js dan @open-wa/wa-automate.
 
-## ✨ Fitur Lengkap
+## ✨ Fitur
 
-### 💰 Cryptocurrency (CoinGecko API)
-- Cek harga Bitcoin, Ethereum, dan crypto lainnya
-- Harga dalam USD dan IDR
-- Perubahan 24 jam
+- 📈 **Saham** - Cek harga saham real-time (Yahoo Finance)
+- 💰 **Crypto** - Harga cryptocurrency (CoinGecko)
+- ⚽ **Football** - Klasemen liga sepakbola
+- 💪 **Kesehatan** - BMI calculator, kalori, nutrisi
+- 📚 **Cek Buku** - Cek stok buku di Google Drive
+- 🎬 **Film** - Info film dari OMDB
+- 📰 **Berita** - Berita terkini dari NewsAPI
+- 📱 **QR Code** - Generate QR code
+- 📖 **Wikipedia** - Cari info di Wikipedia
+- 💱 **Kurs** - Konversi mata uang (coming soon)
 
-### 📈 Saham (Yahoo Finance API)
-- Harga saham real-time
-- Saham US: AAPL, GOOGL, TSLA, dll
-- Saham Indonesia: BBCA.JK, TLKM.JK, dll
+## 🚀 Quick Start
 
-### ⚽ Football (Football-Data API)
-- Klasemen liga top Eropa
-- Premier League, La Liga, Serie A, Bundesliga, Ligue 1
+### Lokal
 
-### 💪 Kesehatan & Fitness
-- Kalkulator BMI
-- Kalkulator kalori harian
-- Info nutrisi makanan
-- Tips kesehatan
-- Saran olahraga/workout
-
-### 📱 QR Code Generator
-- QR Code biasa
-- QR Code dengan logo
-- QR Code warna custom
-- Support URL, teks, WhatsApp, email, dll
-
-### 🎯 Fitur Lainnya
-- Quote motivasi
-- Cek waktu
-- Status bot
-
-## 📋 Cara Install
-
-1. Masuk ke folder bot:
 ```bash
-cd bot-wa
+# Install dependencies
+npm install
+
+# Jalankan bot
+node bot.js
+
+# Scan QR code dengan WhatsApp
 ```
 
-2. Install dependencies:
+### Deploy ke Coolify
+
+```bash
+# Test Docker lokal
+.\test-docker.ps1  # Windows
+./test-docker.sh   # Linux/Mac
+
+# Push ke Git
+git push origin main
+
+# Deploy di Coolify
+# Lihat: QUICK_START_DEPLOY.md
+```
+
+## 📋 Requirements
+
+- Node.js 18+
+- npm atau yarn
+- WhatsApp account
+- (Optional) Google Drive API untuk fitur cek buku
+
+## 🔧 Setup
+
+### 1. Install Dependencies
+
 ```bash
 npm install
 ```
 
-## 🚀 Cara Menjalankan
+### 2. Konfigurasi API Keys
+
+Copy `.env.example` ke `.env` dan isi API keys:
+
+```env
+NEWS_API_KEY=your_key_here
+FOOTBALL_API_KEY=your_key_here
+OMDB_API_KEY=your_key_here
+NUTRITION_API_KEY=your_key_here
+```
+
+### 3. Google Drive (Optional)
+
+Untuk fitur cek buku:
 
 ```bash
-npm start
+# Setup Google Drive API
+node setup-book-folder.js
+
+# Authorize
+node authorize-drive.js
 ```
 
-Scan QR code yang muncul dengan WhatsApp Anda!
+Lihat: [SETUP_GOOGLE_DRIVE.md](./SETUP_GOOGLE_DRIVE.md)
 
-## 💬 Contoh Penggunaan
+### 4. Jalankan Bot
 
-### Crypto
-```
-crypto bitcoin
-crypto ethereum
-crypto bnb
+```bash
+node bot.js
 ```
 
-### Saham
-```
-saham AAPL
-saham BBCA.JK
-saham TLKM.JK
-```
+Scan QR code yang muncul dengan WhatsApp.
 
-### Football
-```
-bola epl
-bola laliga
-bola seriea
-```
+## 📱 Cara Pakai
 
-### Kesehatan
+Kirim pesan ke bot:
+
 ```
-bmi 70 170
-kalori 70 170 25 pria
-nutrisi nasi
-tips sehat
-olahraga
+menu                    → Lihat semua perintah
+saham BBCA.JK          → Harga saham BCA
+crypto bitcoin         → Harga Bitcoin
+bola epl               → Klasemen Premier League
+bmi 70 170             → Hitung BMI
+buku Atomic Habits     → Cek stok buku
+film Avengers          → Info film
+berita teknologi       → Berita teknologi
+wiki Indonesia         → Info Wikipedia
+qr https://google.com  → Generate QR code
 ```
 
-### QR Code
+## 🐳 Docker
+
+### Build
+
+```bash
+docker build -t bot-whatsapp .
 ```
-qr https://google.com
-qrlogo https://instagram.com/username
-qrwarna https://tokosaya.com
+
+### Run
+
+```bash
+docker run -d \
+  -e NODE_ENV=production \
+  -e NEWS_API_KEY=your_key \
+  --name bot-whatsapp \
+  bot-whatsapp
 ```
 
-## 📚 Dokumentasi Lengkap
+### Docker Compose
 
-- `FOOTBALL_API_SETUP.md` - Setup API Football
-- `HEALTH_API_SETUP.md` - Panduan fitur kesehatan
-- `QR_CODE_GUIDE.md` - Panduan QR Code Generator
+```bash
+docker-compose up -d
+```
 
-## 🔑 API Keys (Opsional)
+## 📚 Dokumentasi
 
-Beberapa fitur sudah bisa digunakan tanpa API key. Untuk fitur lengkap:
+- [QUICK_START_DEPLOY.md](./QUICK_START_DEPLOY.md) - Deploy cepat ke Coolify
+- [DEPLOY_COOLIFY.md](./DEPLOY_COOLIFY.md) - Panduan lengkap deployment
+- [SETUP_GOOGLE_DRIVE.md](./SETUP_GOOGLE_DRIVE.md) - Setup Google Drive API
+- [CARA_UPLOAD_BUKU.md](./CARA_UPLOAD_BUKU.md) - Upload buku ke Drive
 
-1. **Football**: Daftar di football-data.org
-2. **Nutrisi**: Daftar di api-ninjas.com
+## 🔒 Security
 
-Semua GRATIS! Lihat file panduan untuk detail.
+**JANGAN commit file berikut:**
+- `credentials.json` - Google Drive credentials
+- `token.json` - Google Drive token
+- `.env` - Environment variables
+- `_IGNORE_*` - WhatsApp session data
 
-## 📝 Catatan
+File `.gitignore` sudah dikonfigurasi untuk mencegah ini.
 
-- Bot menyimpan sesi di folder `_IGNORE_bot-wa-saya`
-- Setelah scan QR pertama kali, bot auto-login
-- Untuk logout, hapus folder sesi
+## 🛠️ Development
 
-## 🛠️ Troubleshooting
+### Test Fitur Individual
 
-Jika ada error:
-1. Pastikan Node.js v12.18.3 atau lebih baru
-2. Hapus `node_modules` dan install ulang
-3. Pastikan koneksi internet stabil
+```bash
+node test-yahoo-finance.js  # Test saham
+node test-wikipedia.js      # Test Wikipedia
+node test-news.js           # Test berita
+node test-check-book.js     # Test cek buku
+```
 
-## 🌟 Fitur Mendatang
+### Encode Credentials untuk Deploy
 
-- [ ] Cuaca
-- [ ] Berita
-- [ ] Translate
-- [ ] Dan lainnya!
+```bash
+node encode-credentials.js
+```
 
-## 📞 Support
+## 📊 Tech Stack
 
-Butuh bantuan? Buka issue di GitHub!
+- **Runtime:** Node.js 18
+- **WhatsApp:** @open-wa/wa-automate
+- **APIs:**
+  - Yahoo Finance (Saham)
+  - CoinGecko (Crypto)
+  - NewsAPI (Berita)
+  - OMDB (Film)
+  - Wikipedia API
+  - Google Drive API
+  - Football-Data.org
+  - API Ninjas (Nutrisi)
 
-Selamat menggunakan! 🎉
+## 🤝 Contributing
+
+Contributions welcome! Please:
+1. Fork repository
+2. Create feature branch
+3. Commit changes
+4. Push to branch
+5. Create Pull Request
+
+## 📝 License
+
+ISC
+
+## 🆘 Support
+
+- **Issues:** [GitHub Issues](https://github.com/username/bot-whatsapp/issues)
+- **Docs:** Lihat folder dokumentasi
+- **@open-wa:** [Documentation](https://docs.openwa.dev/)
+
+## ⚠️ Disclaimer
+
+Bot ini untuk educational purposes. Gunakan dengan bijak dan patuhi Terms of Service WhatsApp.
+
+## 🎉 Credits
+
+- [@open-wa/wa-automate](https://github.com/open-wa/wa-automate-nodejs)
+- [Yahoo Finance](https://finance.yahoo.com/)
+- [CoinGecko](https://www.coingecko.com/)
+- [NewsAPI](https://newsapi.org/)
+- [OMDB](http://www.omdbapi.com/)
+- [Wikipedia](https://www.wikipedia.org/)
+
+---
+
+Made with ❤️ by [Your Name]
