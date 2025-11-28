@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "Bot WhatsApp Otomatis",
   "main": "bot.js",
+  
   "scripts": {
     "start": "node bot.js"
   },
+  "engines": {
+    "node": ">=22"
+  }
   "keywords": [
     "whatsapp",
     "bot",
