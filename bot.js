@@ -1,5 +1,6 @@
 // Bot WhatsApp Otomatis - JavaScript
 const wa = require('@open-wa/wa-automate');
+require('dotenv').config();
 const fs = require('fs');
 const axios = require('axios');
 const YahooFinance = require('yahoo-finance2').default;
@@ -9,7 +10,7 @@ const { checkBook } = require('./check-book');
 // Fungsi utama bot
 async function start(client) {
   console.log('✅ Bot WhatsApp berhasil dijalankan!');
-  
+
   const me = await client.getMe();
   console.log('📱 Nomor Bot:', me.user);
 
@@ -31,7 +32,7 @@ async function start(client) {
       if (pesan === 'halo' || pesan === 'hi' || pesan === 'hai') {
         await client.sendText(pengirim, '👋 Halo! Ada yang bisa saya bantu?\n\nKetik *menu* untuk lihat perintah.');
       }
-      
+
       else if (pesan === 'menu') {
         const menu = `📋 *MENU BOT WHATSAPP*\n\n` +
           `🎯 *PERINTAH DASAR*\n` +
@@ -74,10 +75,10 @@ async function start(client) {
           `• wiki [topik]\n\n` +
           `💡 Chat PRIBADI, bukan grup!\n` +
           `Selamat menggunakan! 🎉`;
-        
+
         await client.sendText(pengirim, menu);
       }
-      
+
       else if (pesan === 'info') {
         const infoText = `🤖 *BOT WHATSAPP ASSISTANT*\n\n` +
           `Bot otomatis dengan 10 fitur lengkap!\n\n` +
@@ -105,15 +106,15 @@ async function start(client) {
           `Bot TIDAK balas di grup!\n` +
           `Hanya balas chat pribadi.\n\n` +
           `Ketik *menu* untuk mulai! 🚀`;
-        
+
         await client.sendText(pengirim, infoText);
       }
-      
+
       else if (pesan === 'waktu') {
         const waktu = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
         await client.sendText(pengirim, `🕐 ${waktu}`);
       }
-      
+
       else if (pesan === 'quote') {
         const quotes = [
           '💪 "Kesuksesan adalah hasil kerja keras."',
@@ -125,11 +126,11 @@ async function start(client) {
         const random = quotes[Math.floor(Math.random() * quotes.length)];
         await client.sendText(pengirim, random);
       }
-      
+
       else if (pesan === 'ping') {
         await client.sendText(pengirim, '✅ Bot aktif! 🟢');
       }
-      
+
       // Fitur Saham dengan Yahoo Finance API
       else if (pesan.startsWith('saham ')) {
         const symbol = pesan.replace('saham ', '').trim().toUpperCase();
@@ -185,11 +186,11 @@ async function start(client) {
         }
 
       }
-      
+
       // Fitur Football dengan API-Football (gratis)
       else if (pesan.startsWith('bola ')) {
         const league = pesan.replace('bola ', '').trim().toLowerCase();
-        
+
         // Mapping liga ke ID
         const leagueMap = {
           'epl': { id: 'PL', name: 'Premier League' },
@@ -199,56 +200,56 @@ async function start(client) {
           'bundesliga': { id: 'BL1', name: 'Bundesliga' },
           'ligue1': { id: 'FL1', name: 'Ligue 1' }
         };
-        
+
         const selectedLeague = leagueMap[league];
-        
+
         if (!selectedLeague) {
           await client.sendText(pengirim, '❌ Liga tidak ditemukan.\n\nContoh:\n• bola epl\n• bola laliga\n• bola seriea\n• bola bundesliga\n• bola ligue1');
           return;
         }
-        
+
         try {
           await client.sendText(pengirim, `⏳ Mengambil klasemen ${selectedLeague.name}...`);
-          
+
           // Panggil Football-Data API (gratis, tanpa API key untuk data terbatas)
           const response = await axios.get(`https://api.football-data.org/v4/competitions/${selectedLeague.id}/standings`, {
             headers: {
               'X-Auth-Token': '692831933e644d3eb42f80e62856fe67' // Bisa kosong untuk free tier terbatas
             }
           });
-          
+
           if (response.data && response.data.standings && response.data.standings[0]) {
             const standings = response.data.standings[0].table.slice(0, 10); // Top 10
-            
+
             let tableText = `⚽ *KLASEMEN ${selectedLeague.name.toUpperCase()}*\n\n`;
-            
+
             standings.forEach((team, index) => {
               const pos = team.position;
               const name = team.team.name;
               const played = team.playedGames;
               const points = team.points;
               const gd = team.goalDifference;
-              
+
               // Emoji untuk posisi
               let emoji = '';
               if (pos === 1) emoji = '🥇';
               else if (pos === 2) emoji = '🥈';
               else if (pos === 3) emoji = '🥉';
               else emoji = `${pos}.`;
-              
+
               tableText += `${emoji} ${name}\n`;
               tableText += `   Main: ${played} | Poin: ${points} | GD: ${gd > 0 ? '+' : ''}${gd}\n\n`;
             });
-            
+
             tableText += `Data dari Football-Data.org`;
-            
+
             await client.sendText(pengirim, tableText);
           } else {
             await client.sendText(pengirim, '❌ Gagal mengambil data klasemen.');
           }
         } catch (error) {
           console.error('Error fetching football data:', error);
-          
+
           // Fallback: gunakan data dummy untuk demo
           let demoText = `⚽ *KLASEMEN ${selectedLeague.name.toUpperCase()}*\n\n`;
           demoText += `ℹ️ Untuk data real-time, daftar API key gratis di:\nhttps://www.football-data.org/\n\n`;
@@ -257,11 +258,11 @@ async function start(client) {
           demoText += `1. Daftar di football-data.org\n`;
           demoText += `2. Dapatkan API key gratis\n`;
           demoText += `3. Ganti 'YOUR_API_KEY_HERE' di bot.js`;
-          
+
           await client.sendText(pengirim, demoText);
         }
       }
-      
+
       // Fitur BMI Calculator
       else if (pesan.startsWith('bmi ')) {
         const parts = pesan.split(' ');
@@ -269,22 +270,22 @@ async function start(client) {
           await client.sendText(pengirim, '❌ Format salah!\n\nContoh: bmi 70 170\n(berat dalam kg, tinggi dalam cm)');
           return;
         }
-        
+
         const berat = parseFloat(parts[1]);
         const tinggiCm = parseFloat(parts[2]);
-        
+
         if (isNaN(berat) || isNaN(tinggiCm) || berat <= 0 || tinggiCm <= 0) {
           await client.sendText(pengirim, '❌ Masukkan angka yang valid!\n\nContoh: bmi 70 170');
           return;
         }
-        
+
         const tinggiM = tinggiCm / 100;
         const bmi = (berat / (tinggiM * tinggiM)).toFixed(1);
-        
+
         let kategori = '';
         let emoji = '';
         let saran = '';
-        
+
         if (bmi < 18.5) {
           kategori = 'Kurus';
           emoji = '⚠️';
@@ -302,17 +303,17 @@ async function start(client) {
           emoji = '🚨';
           saran = 'Konsultasi dengan dokter untuk program penurunan berat badan yang aman.';
         }
-        
+
         const bmiInfo = `💪 *HASIL BMI*\n\n` +
           `Berat: ${berat} kg\n` +
           `Tinggi: ${tinggiCm} cm\n\n` +
           `BMI: ${bmi}\n` +
           `Status: ${emoji} ${kategori}\n\n` +
           `📝 Saran:\n${saran}`;
-        
+
         await client.sendText(pengirim, bmiInfo);
       }
-      
+
       // Fitur Kalkulator Kalori Harian
       else if (pesan.startsWith('kalori ')) {
         const parts = pesan.split(' ');
@@ -320,22 +321,22 @@ async function start(client) {
           await client.sendText(pengirim, '❌ Format salah!\n\nContoh: kalori 70 170 25 pria\n(berat kg, tinggi cm, umur, jenis kelamin)');
           return;
         }
-        
+
         const berat = parseFloat(parts[1]);
         const tinggi = parseFloat(parts[2]);
         const umur = parseInt(parts[3]);
         const gender = parts[4].toLowerCase();
-        
+
         if (isNaN(berat) || isNaN(tinggi) || isNaN(umur)) {
           await client.sendText(pengirim, '❌ Masukkan angka yang valid!');
           return;
         }
-        
+
         if (gender !== 'pria' && gender !== 'wanita') {
           await client.sendText(pengirim, '❌ Jenis kelamin harus "pria" atau "wanita"');
           return;
         }
-        
+
         // Rumus Mifflin-St Jeor
         let bmr;
         if (gender === 'pria') {
@@ -343,13 +344,13 @@ async function start(client) {
         } else {
           bmr = (10 * berat) + (6.25 * tinggi) - (5 * umur) - 161;
         }
-        
+
         const sedentary = Math.round(bmr * 1.2);
         const light = Math.round(bmr * 1.375);
         const moderate = Math.round(bmr * 1.55);
         const active = Math.round(bmr * 1.725);
         const veryActive = Math.round(bmr * 1.9);
-        
+
         const kaloriInfo = `🔥 *KEBUTUHAN KALORI HARIAN*\n\n` +
           `Data: ${berat}kg, ${tinggi}cm, ${umur}th, ${gender}\n` +
           `BMR: ${Math.round(bmr)} kkal\n\n` +
@@ -361,24 +362,24 @@ async function start(client) {
           `🏋️ Sangat aktif (2x/hari): ${veryActive} kkal\n\n` +
           `💡 Untuk turun berat: kurangi 500 kkal/hari\n` +
           `💡 Untuk naik berat: tambah 500 kkal/hari`;
-        
+
         await client.sendText(pengirim, kaloriInfo);
       }
-      
+
       // Fitur Info Nutrisi Makanan (API Gratis)
       else if (pesan.startsWith('nutrisi ')) {
         const makanan = pesan.replace('nutrisi ', '').trim();
-        
+
         try {
           await client.sendText(pengirim, '⏳ Mencari info nutrisi...');
-          
+
           // Gunakan API Nutrition gratis
           const response = await axios.get(`https://api.api-ninjas.com/v1/nutrition?query=${makanan}`, {
             headers: {
               'X-Api-Key': 'flCk9ITCjlM5UgJNOGvrIw==htM5mkHmOb34IzBA' // Gratis di api-ninjas.com
             }
           });
-          
+
           if (response.data && response.data.length > 0) {
             const food = response.data[0];
             const nutrisiInfo = `🍽️ *NUTRISI: ${food.name.toUpperCase()}*\n\n` +
@@ -390,14 +391,14 @@ async function start(client) {
               `🍬 Gula: ${food.sugar_g}g\n` +
               `🧂 Sodium: ${food.sodium_mg}mg\n\n` +
               `Data dari API Ninjas`;
-            
+
             await client.sendText(pengirim, nutrisiInfo);
           } else {
             await client.sendText(pengirim, `❌ Makanan "${makanan}" tidak ditemukan.\n\nCoba dengan nama dalam bahasa Inggris.\nContoh: nutrisi rice, nutrisi chicken`);
           }
         } catch (error) {
           console.error('Error fetching nutrition:', error);
-          
+
           // Fallback dengan data lokal
           const nutrisiLokal = {
             'nasi': { kalori: 130, protein: 2.7, karbo: 28, lemak: 0.3 },
@@ -406,7 +407,7 @@ async function start(client) {
             'tempe': { kalori: 195, protein: 20, karbo: 9, lemak: 11 },
             'tahu': { kalori: 76, protein: 8, karbo: 1.9, lemak: 4.8 }
           };
-          
+
           if (nutrisiLokal[makanan]) {
             const data = nutrisiLokal[makanan];
             const info = `🍽️ *NUTRISI: ${makanan.toUpperCase()}*\n\n` +
@@ -416,14 +417,14 @@ async function start(client) {
               `🍚 Karbohidrat: ${data.karbo}g\n` +
               `🧈 Lemak: ${data.lemak}g\n\n` +
               `💡 Untuk data lebih lengkap, daftar API key gratis di api-ninjas.com`;
-            
+
             await client.sendText(pengirim, info);
           } else {
             await client.sendText(pengirim, `ℹ️ Untuk fitur nutrisi lengkap:\n\n1. Daftar gratis di api-ninjas.com\n2. Dapatkan API key\n3. Masukkan ke bot.js\n\nMakanan lokal tersedia: nasi, ayam, telur, tempe, tahu`);
           }
         }
       }
-      
+
       // Tips Kesehatan Random
       else if (pesan === 'tips sehat' || pesan === 'tips kesehatan') {
         const tips = [
@@ -438,11 +439,11 @@ async function start(client) {
           '📱 Kurangi screen time, istirahatkan mata setiap 20 menit.',
           '🥛 Konsumsi protein cukup untuk membangun dan memperbaiki otot.'
         ];
-        
+
         const randomTip = tips[Math.floor(Math.random() * tips.length)];
         await client.sendText(pengirim, `💪 *TIPS KESEHATAN*\n\n${randomTip}`);
       }
-      
+
       // Saran Olahraga
       else if (pesan === 'olahraga' || pesan === 'workout') {
         const workouts = [
@@ -452,30 +453,30 @@ async function start(client) {
           '🏋️ *FULL BODY*\n\n• Burpees 3x10\n• Mountain climbers 3x20\n• Jumping jacks 3x30\n• High knees 3x30 detik',
           '🎯 *CORE*\n\n• Sit ups 3x20\n• Russian twist 3x30\n• Leg raises 3x15\n• Bicycle crunches 3x20'
         ];
-        
+
         const randomWorkout = workouts[Math.floor(Math.random() * workouts.length)];
         await client.sendText(pengirim, `💪 *PROGRAM OLAHRAGA*\n\n${randomWorkout}\n\n⏰ Istirahat 60 detik antar set\n💧 Jangan lupa minum air!`);
       }
-      
+
       // Fitur QR Code Generator - Basic
       else if (pesan.startsWith('qr ')) {
         const text = message.body.substring(3).trim();
-        
+
         if (!text) {
           await client.sendText(pengirim, '❌ Format salah!\n\nContoh:\n• qr https://google.com\n• qr Halo ini teks saya');
           return;
         }
-        
+
         try {
           await client.sendText(pengirim, '⏳ Membuat QR Code...');
-          
+
           // Gunakan API QR Code gratis dari goqr.me
           const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(text)}`;
-          
+
           // Download QR code
           const response = await axios.get(qrUrl, { responseType: 'arraybuffer' });
           const buffer = Buffer.from(response.data, 'binary');
-          
+
           // Kirim sebagai gambar menggunakan sendFile (lebih reliable)
           await client.sendFile(
             pengirim,
@@ -488,25 +489,25 @@ async function start(client) {
           await client.sendText(pengirim, '❌ Gagal membuat QR Code. Coba lagi.');
         }
       }
-      
+
       // Fitur QR Code dengan Logo Custom
       else if (pesan.startsWith('qrlogo ')) {
         const text = message.body.substring(7).trim();
-        
+
         if (!text) {
           await client.sendText(pengirim, '❌ Format salah!\n\nContoh: qrlogo https://google.com');
           return;
         }
-        
+
         try {
           await client.sendText(pengirim, '⏳ Membuat QR Code dengan logo...');
-          
+
           // Gunakan API dengan logo di tengah
           const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(text)}&format=png&margin=10`;
-          
+
           const response = await axios.get(qrUrl, { responseType: 'arraybuffer' });
           const buffer = Buffer.from(response.data, 'binary');
-          
+
           await client.sendFile(
             pengirim,
             `data:image/png;base64,${buffer.toString('base64')}`,
@@ -518,25 +519,25 @@ async function start(client) {
           await client.sendText(pengirim, '❌ Gagal membuat QR Code. Coba lagi.');
         }
       }
-      
+
       // Fitur QR Code Warna Custom
       else if (pesan.startsWith('qrwarna ')) {
         const text = message.body.substring(8).trim();
-        
+
         if (!text) {
           await client.sendText(pengirim, '❌ Format salah!\n\nContoh: qrwarna https://google.com');
           return;
         }
-        
+
         try {
           await client.sendText(pengirim, '⏳ Membuat QR Code berwarna...');
-          
+
           // QR Code dengan warna custom (biru dan putih)
           const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(text)}&color=0-100-200&bgcolor=255-255-255`;
-          
+
           const response = await axios.get(qrUrl, { responseType: 'arraybuffer' });
           const buffer = Buffer.from(response.data, 'binary');
-          
+
           await client.sendFile(
             pengirim,
             `data:image/png;base64,${buffer.toString('base64')}`,
@@ -548,32 +549,33 @@ async function start(client) {
           await client.sendText(pengirim, '❌ Gagal membuat QR Code. Coba lagi.');
         }
       }
-      
+
       // Fitur Cek Stok Buku dari Google Drive
       else if (pesan.startsWith('buku ')) {
         const judulBuku = message.body.substring(5).trim();
-        
+
         if (!judulBuku) {
           await client.sendText(pengirim, '❌ Format salah!\n\nContoh: buku Atomic Habit');
           return;
         }
-        
+
         try {
           await client.sendText(pengirim, '⏳ Mengecek ketersediaan buku...');
-          
+
           // Cek apakah credentials dan token ada
-          if (!fs.existsSync('./credentials.json') || !fs.existsSync('./token.json')) {
-            await client.sendText(pengirim, 
+          const googleAuth = require('./google-auth');
+          if (!googleAuth.getCredentials() || !googleAuth.getToken()) {
+            await client.sendText(pengirim,
               '⚠️ Fitur cek buku belum disetup.\n\n' +
               'Admin perlu setup Google Drive API terlebih dahulu.\n' +
               'Lihat file: SETUP_GOOGLE_DRIVE.md'
             );
             return;
           }
-          
+
           // Cek buku di Google Drive
           const result = await checkBook(judulBuku);
-          
+
           if (result.found) {
             // Buku READY
             const pesanReady = `✅ *BUKU READY!*\n\n` +
@@ -582,13 +584,13 @@ async function start(client) {
               `💰 Silakan lakukan pembayaran:\n` +
               `Scan QR Code di katalog atau hubungi admin untuk info pembayaran.\n\n` +
               `Terima kasih! 🙏`;
-            
+
             await client.sendText(pengirim, pesanReady);
-            
+
             // Optional: Kirim QR Code pembayaran
             // Uncomment jika sudah ada QR pembayaran
             // await client.sendImage(pengirim, './qr-pembayaran.png', 'qr-pembayaran.png', 'QR Code Pembayaran');
-            
+
           } else {
             // Buku TIDAK READY
             const pesanTidakReady = `❌ *BUKU TIDAK READY*\n\n` +
@@ -596,35 +598,35 @@ async function start(client) {
               `📦 Status: TIDAK TERSEDIA\n\n` +
               `Maaf, buku ini sedang tidak tersedia.\n` +
               `Silakan coba judul lain atau hubungi admin untuk info lebih lanjut.`;
-            
+
             await client.sendText(pengirim, pesanTidakReady);
           }
-          
+
         } catch (error) {
           console.error('Error cek buku:', error);
-          await client.sendText(pengirim, 
+          await client.sendText(pengirim,
             '❌ Gagal mengecek buku.\n\n' +
             'Silakan coba lagi atau hubungi admin.'
           );
         }
       }
-      
+
       // Fitur Movie Database dengan OMDB API
       else if (pesan.startsWith('film ')) {
         const judulFilm = message.body.substring(5).trim();
-        
+
         if (!judulFilm) {
           await client.sendText(pengirim, '❌ Format salah!\n\nContoh: film Avengers');
           return;
         }
-        
+
         try {
           await client.sendText(pengirim, '⏳ Mencari info film...');
-          
+
           // OMDB API (gratis, tanpa API key untuk pencarian terbatas)
           // Untuk fitur lengkap, daftar API key gratis di: http://www.omdbapi.com/apikey.aspx
           const apiKey = 'b1a7b542'; // Ganti dengan API key Anda
-          
+
           const response = await axios.get(`http://www.omdbapi.com/`, {
             params: {
               apikey: apiKey,
@@ -632,10 +634,10 @@ async function start(client) {
               plot: 'short'
             }
           });
-          
+
           if (response.data.Response === 'True') {
             const movie = response.data;
-            
+
             const movieInfo = `🎬 *${movie.Title}* (${movie.Year})\n\n` +
               `⭐ Rating: ${movie.imdbRating}/10\n` +
               `🎭 Genre: ${movie.Genre}\n` +
@@ -645,9 +647,9 @@ async function start(client) {
               `📝 Sinopsis:\n${movie.Plot}\n\n` +
               `🏆 Awards: ${movie.Awards}\n\n` +
               `Data dari OMDB`;
-            
+
             await client.sendText(pengirim, movieInfo);
-            
+
             // Kirim poster jika ada
             if (movie.Poster && movie.Poster !== 'N/A') {
               try {
@@ -656,18 +658,18 @@ async function start(client) {
                 console.log('Gagal kirim poster');
               }
             }
-            
+
           } else {
-            await client.sendText(pengirim, 
+            await client.sendText(pengirim,
               `❌ Film "${judulFilm}" tidak ditemukan.\n\n` +
               `Coba dengan judul dalam bahasa Inggris.\n` +
               `Contoh: film Avengers, film Inception`
             );
           }
-          
+
         } catch (error) {
           console.error('Error fetching movie:', error);
-          
+
           // Fallback jika belum ada API key
           if (error.response?.status === 401 || error.message.includes('Invalid API key')) {
             await client.sendText(pengirim,
@@ -687,21 +689,21 @@ async function start(client) {
           }
         }
       }
-      
+
       // Fitur Berita dengan NewsAPI
       else if (pesan.startsWith('berita')) {
         console.log('📰 Berita command detected:', pesan);
-        
+
         try {
           await client.sendText(pengirim, '⏳ Mengambil berita terkini...');
-          
+
           const apiKey = '05f96aa3312e44b0a8d7807e12733e5c'; // Ganti dengan API key dari newsapi.org
-          
+
           // Tentukan kategori berdasarkan pesan
           let category = 'general';
           let country = 'us'; // US karena Indonesia tidak support di NewsAPI free tier
           let query = '';
-          
+
           if (pesan.includes('teknologi') || pesan.includes('technology')) {
             category = 'technology';
             console.log('📱 Category: technology');
@@ -720,7 +722,7 @@ async function start(client) {
           } else {
             console.log('📰 Category: general');
           }
-          
+
           const response = await axios.get('https://newsapi.org/v2/top-headlines', {
             params: {
               apiKey: apiKey,
@@ -729,16 +731,16 @@ async function start(client) {
               pageSize: 5
             }
           });
-          
+
           if (response.data.status === 'ok' && response.data.articles.length > 0) {
             const articles = response.data.articles;
-            
+
             let beritaText = `📰 *BERITA TERKINI*\n`;
             if (category !== 'general') {
               beritaText += `Kategori: ${category.toUpperCase()}\n`;
             }
             beritaText += `\n`;
-            
+
             articles.forEach((article, index) => {
               beritaText += `${index + 1}. *${article.title}*\n`;
               if (article.description) {
@@ -747,18 +749,18 @@ async function start(client) {
               beritaText += `   🔗 ${article.url}\n`;
               beritaText += `   📅 ${new Date(article.publishedAt).toLocaleString('id-ID')}\n\n`;
             });
-            
+
             beritaText += `Data dari NewsAPI`;
-            
+
             await client.sendText(pengirim, beritaText);
-            
+
           } else {
             await client.sendText(pengirim, '❌ Tidak ada berita ditemukan.');
           }
-          
+
         } catch (error) {
           console.error('Error fetching news:', error);
-          
+
           // Fallback jika belum ada API key
           if (error.response?.status === 401 || error.message.includes('apiKey')) {
             await client.sendText(pengirim,
@@ -777,21 +779,21 @@ async function start(client) {
           }
         }
       }
-      
+
       // Fitur Konversi Mata Uang dengan Fixer.io API
       else if (pesan.startsWith('kurs')) {
         try {
           await client.sendText(pengirim, '⏳ Mengambil kurs terkini...');
-          
+
           const apiKey = '4c853c89575ee427ddd5eeb2af42da45'; // Ganti dengan API key dari fixer.io
-          
+
           // Parse perintah
           const parts = message.body.split(' ').filter(p => p);
-          
+
           let amount = 1;
           let from = 'USD';
           let to = 'IDR';
-          
+
           if (parts.length === 2) {
             // Format: kurs USD
             from = parts[1].toUpperCase();
@@ -806,16 +808,16 @@ async function start(client) {
             from = parts[1].toUpperCase();
             to = parts[2].toUpperCase();
           }
-          
+
           // Validasi amount
           if (isNaN(amount) || amount <= 0) {
             await client.sendText(pengirim, '❌ Jumlah tidak valid!\n\nContoh: kurs 100 USD IDR');
             return;
           }
-          
+
           const response = await axios.get(`http://data.fixer.io/api/convert`, {
             params: {
-              access_key : apiKey,
+              access_key: apiKey,
               from: from,
               to: to,
               amount: amount
@@ -824,31 +826,31 @@ async function start(client) {
               'apikey': apiKey
             }
           });
-          
+
           if (response.data.success) {
             const result = response.data.result;
             const rate = response.data.info.rate;
             const date = new Date(response.data.date).toLocaleDateString('id-ID');
-            
+
             const kursInfo = `💱 *KONVERSI MATA UANG*\n\n` +
-              `${amount.toLocaleString('id-ID')} ${from} = ${result.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${to}\n\n` +
-              `📊 Rate: 1 ${from} = ${rate.toLocaleString('id-ID', {minimumFractionDigits: 4, maximumFractionDigits: 4})} ${to}\n` +
+              `${amount.toLocaleString('id-ID')} ${from} = ${result.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${to}\n\n` +
+              `📊 Rate: 1 ${from} = ${rate.toLocaleString('id-ID', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} ${to}\n` +
               `📅 Update: ${date}\n\n` +
               `Data dari Fixer.io`;
-            
+
             await client.sendText(pengirim, kursInfo);
-            
+
           } else {
-            await client.sendText(pengirim, 
+            await client.sendText(pengirim,
               `❌ Gagal konversi mata uang.\n\n` +
               `Pastikan kode mata uang benar.\n` +
               `Contoh: USD, EUR, GBP, JPY, IDR`
             );
           }
-          
+
         } catch (error) {
           console.error('Error fetching currency:', error);
-          
+
           // Fallback jika belum ada API key
           if (error.response?.status === 401 || error.message.includes('apikey')) {
             await client.sendText(pengirim,
@@ -867,19 +869,19 @@ async function start(client) {
           }
         }
       }
-      
+
       // Fitur Wikipedia (100% GRATIS, tanpa API key)
       else if (pesan.startsWith('wiki ')) {
         const topik = message.body.substring(5).trim();
-        
+
         if (!topik) {
           await client.sendText(pengirim, '❌ Format salah!\n\nContoh: wiki Indonesia');
           return;
         }
-        
+
         try {
           await client.sendText(pengirim, '⏳ Mencari di Wikipedia...');
-          
+
           // Wikipedia API (GRATIS, tanpa limit, tanpa API key!)
           const searchResponse = await axios.get('https://id.wikipedia.org/w/api.php', {
             params: {
@@ -893,11 +895,11 @@ async function start(client) {
               'User-Agent': 'WhatsAppBot/1.0 (https://github.com/yourbot; bot@example.com)'
             }
           });
-          
+
           if (searchResponse.data.query.search.length > 0) {
             const pageId = searchResponse.data.query.search[0].pageid;
             const title = searchResponse.data.query.search[0].title;
-            
+
             // Ambil konten artikel
             const contentResponse = await axios.get('https://id.wikipedia.org/w/api.php', {
               params: {
@@ -913,38 +915,38 @@ async function start(client) {
                 'User-Agent': 'WhatsAppBot/1.0 (https://github.com/yourbot; bot@example.com)'
               }
             });
-            
+
             const page = contentResponse.data.query.pages[pageId];
             let extract = page.extract || 'Tidak ada deskripsi tersedia.';
-            
+
             // Batasi panjang teks (max 1000 karakter)
             if (extract.length > 1000) {
               extract = extract.substring(0, 1000) + '...';
             }
-            
+
             const wikiUrl = `https://id.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`;
-            
+
             const wikiInfo = `📚 *${title}*\n\n` +
               `${extract}\n\n` +
               `🔗 Baca selengkapnya:\n${wikiUrl}\n\n` +
               `Sumber: Wikipedia Indonesia`;
-            
+
             await client.sendText(pengirim, wikiInfo);
-            
+
             // Kirim gambar jika ada
             if (page.original && page.original.source) {
               try {
                 await client.sendImage(
-                  pengirim, 
-                  page.original.source, 
-                  'wiki.jpg', 
+                  pengirim,
+                  page.original.source,
+                  'wiki.jpg',
                   title
                 );
               } catch (err) {
                 console.log('Gagal kirim gambar Wikipedia');
               }
             }
-            
+
           } else {
             // Coba cari di Wikipedia English
             const searchResponseEN = await axios.get('https://en.wikipedia.org/w/api.php', {
@@ -959,11 +961,11 @@ async function start(client) {
                 'User-Agent': 'WhatsAppBot/1.0 (https://github.com/yourbot; bot@example.com)'
               }
             });
-            
+
             if (searchResponseEN.data.query.search.length > 0) {
               const pageId = searchResponseEN.data.query.search[0].pageid;
               const title = searchResponseEN.data.query.search[0].title;
-              
+
               const contentResponse = await axios.get('https://en.wikipedia.org/w/api.php', {
                 params: {
                   action: 'query',
@@ -977,44 +979,44 @@ async function start(client) {
                   'User-Agent': 'WhatsAppBot/1.0 (https://github.com/yourbot; bot@example.com)'
                 }
               });
-              
+
               const page = contentResponse.data.query.pages[pageId];
               let extract = page.extract || 'No description available.';
-              
+
               if (extract.length > 1000) {
                 extract = extract.substring(0, 1000) + '...';
               }
-              
+
               const wikiUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`;
-              
+
               const wikiInfo = `📚 *${title}*\n\n` +
                 `${extract}\n\n` +
                 `🔗 Read more:\n${wikiUrl}\n\n` +
                 `Source: Wikipedia (English)`;
-              
+
               await client.sendText(pengirim, wikiInfo);
-              
+
             } else {
-              await client.sendText(pengirim, 
+              await client.sendText(pengirim,
                 `❌ Topik "${topik}" tidak ditemukan di Wikipedia.\n\n` +
                 `Coba dengan kata kunci lain atau ejaan yang berbeda.`
               );
             }
           }
-          
+
         } catch (error) {
           console.error('Error fetching Wikipedia:', error);
           await client.sendText(pengirim, '❌ Gagal mengambil data dari Wikipedia. Coba lagi nanti.');
         }
       }
-      
+
       // Fitur Crypto dengan CoinGecko API
       else if (pesan.startsWith('crypto ')) {
         const coin = pesan.replace('crypto ', '').trim().toLowerCase();
-        
+
         try {
           await client.sendText(pengirim, '⏳ Mengambil data harga...');
-          
+
           // Panggil CoinGecko API (gratis, tanpa API key)
           const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price`, {
             params: {
@@ -1024,20 +1026,20 @@ async function start(client) {
               include_market_cap: true
             }
           });
-          
+
           if (response.data[coin]) {
             const data = response.data[coin];
             const priceUSD = data.usd.toLocaleString('en-US');
             const priceIDR = data.idr.toLocaleString('id-ID');
             const change24h = data.usd_24h_change ? data.usd_24h_change.toFixed(2) : 'N/A';
             const changeEmoji = data.usd_24h_change > 0 ? '📈' : '📉';
-            
+
             const cryptoInfo = `💰 *${coin.toUpperCase()}*\n\n` +
               `💵 Harga USD: $${priceUSD}\n` +
               `💴 Harga IDR: Rp ${priceIDR}\n` +
               `${changeEmoji} Perubahan 24h: ${change24h}%\n\n` +
               `Data dari CoinGecko`;
-            
+
             await client.sendText(pengirim, cryptoInfo);
           } else {
             await client.sendText(pengirim, `❌ Crypto "${coin}" tidak ditemukan.\n\nContoh: crypto bitcoin, crypto ethereum`);
@@ -1047,7 +1049,7 @@ async function start(client) {
           await client.sendText(pengirim, '❌ Gagal mengambil data crypto. Coba lagi nanti.');
         }
       }
-      
+
       else {
         await client.sendText(pengirim, '❓ Ketik *menu* untuk lihat perintah.');
       }
@@ -1071,7 +1073,7 @@ async function start(client) {
 
 // Event untuk menyimpan QR code sebagai gambar
 wa.ev.on('qr.**', async (qrcode, sessionId) => {
-  const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,',''), 'base64');
+  const imageBuffer = Buffer.from(qrcode.replace('data:image/png;base64,', ''), 'base64');
   const filename = `qr_code_${sessionId}.png`;
   fs.writeFileSync(filename, imageBuffer);
   console.log(`\n✅ QR Code disimpan sebagai: ${filename}`);
@@ -1089,8 +1091,8 @@ wa.create({
   logConsole: false,
   useChrome: true
 })
-.then(client => start(client))
-.catch(error => console.error('❌ Error:', error));
+  .then(client => start(client))
+  .catch(error => console.error('❌ Error:', error));
 
 console.log('🚀 Memulai bot...');
 console.log('📱 Scan QR code dengan WhatsApp Anda!');

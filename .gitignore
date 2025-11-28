@@ -1,37 +1,35 @@
 # Dependencies
 node_modules/
 package-lock.json
-
 # Credentials & Tokens (JANGAN UPLOAD!)
 credentials.json
 token.json
-
 # WhatsApp Session Data
 _IGNORE_*
 *.data.json
-
 # Logs
 *.log
 npm-debug.log*
-
 # Environment variables
 .env
 .env.local
-
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-
 # OS
 .DS_Store
 Thumbs.db
-
 # Test files
 test-*.js
 tempCodeRunnerFile.js
-
 # Build
 dist/
 build/
+
+# managed
+**.data.json
+**.node-persist**
+**_IGNORE_**
+# end managed

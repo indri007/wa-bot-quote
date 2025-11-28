@@ -8,12 +8,16 @@ const FOLDER_ID = '1AvdFg9yLWyQg9UL1jKJUNU6KESjd-ugO';
 async function checkBook(bookTitle) {
   try {
     // Load credentials
-    const credentials = JSON.parse(fs.readFileSync('credentials.json'));
+    const credentials = require('./google-auth').getCredentials();
+    if (!credentials) throw new Error('Credentials not found');
+
     const { client_secret, client_id, redirect_uris } = credentials.installed || credentials.web;
     const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
     // Load token
-    const token = JSON.parse(fs.readFileSync('token.json'));
+    const token = require('./google-auth').getToken();
+    if (!token) throw new Error('Token not found');
+
     oAuth2Client.setCredentials(token);
 
     const drive = google.drive({ version: 'v3', auth: oAuth2Client });
@@ -26,46 +30,12 @@ async function checkBook(bookTitle) {
     });
 
     const files = response.data.files;
-    
-    console.log(`📁 Total files di folder: ${files.length}`);
-    console.log(`🔍 Mencari: "${bookTitle}"`);
-    
-    // Normalisasi judul buku yang dicari (hapus karakter spesial, lowercase)
-    const normalizeText = (text) => {
-      return text
-        .toLowerCase()
-        .replace(/[^\w\s]/g, '') // Hapus karakter spesial
-        .replace(/\s+/g, ' ')     // Normalize spasi
-        .trim();
-    };
-    
-    const searchTerm = normalizeText(bookTitle);
-    console.log(`🔎 Search term (normalized): "${searchTerm}"`);
-    
-    // Cari buku yang cocok dengan fuzzy matching
-    const foundBook = files.find(file => {
-      const fileName = normalizeText(file.name);
-      
-      // Cek apakah semua kata dari search term ada di filename
-      const searchWords = searchTerm.split(' ');
-      const allWordsFound = searchWords.every(word => 
-        word.length > 0 && fileName.includes(word)
-      );
-      
-      // Debug log
-      if (allWordsFound) {
-        console.log(`✅ Match found: "${file.name}" → normalized: "${fileName}"`);
-      }
-      
-      return allWordsFound;
-    });
-    
-    if (!foundBook) {
-      console.log(`❌ Tidak ditemukan. Menampilkan 5 file pertama untuk referensi:`);
-      files.slice(0, 5).forEach(file => {
-        console.log(`   - ${file.name}`);
-      });
-    }
+
+    // Cari buku yang cocok
+    const bookTitleLower = bookTitle.toLowerCase();
+    const foundBook = files.find(file =>
+      file.name.toLowerCase().includes(bookTitleLower)
+    );
 
     return {
       found: !!foundBook,
