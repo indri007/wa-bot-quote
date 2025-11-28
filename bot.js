@@ -1088,8 +1088,13 @@ wa.create({
   headless: true,
   qrTimeout: 0,
   disableSpins: true,
-  logConsole: false,
-  useChrome: true
+  logConsole: true,
+  useChrome: true,
+  chromiumArgs: [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage'
+  ]
 })
   .then(client => start(client))
   .catch(error => console.error('❌ Error:', error));
