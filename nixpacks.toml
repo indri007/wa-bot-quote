@@ -3,6 +3,7 @@ NODE_VERSION = "20"
 
 [phases.install]
 cmds = ["npm install"]
+cmds = ["npm install dotenv"]
 
 [phases.build]
 cmds = []
