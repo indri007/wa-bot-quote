@@ -1,32 +1,24 @@
 # Dependencies
 node_modules/
-package-lock.json
-# Credentials & Tokens (JANGAN UPLOAD!)
-credentials.json
-token.json
-# WhatsApp Session Data
-_IGNORE_*
+# Session data - JANGAN DIUPLOAD KE GITHUB!
+_IGNORE_*/
 *.data.json
+# QR Code
+qr_code*.png
 # Logs
 *.log
 npm-debug.log*
-# Environment variables
-.env
-.env.local
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
+yarn-debug.log*
+yarn-error.log*
 # OS
 .DS_Store
 Thumbs.db
-# Test files
-test-*.js
-tempCodeRunnerFile.js
-# Build
-dist/
-build/
+# Environment variables
+.env
+.env.local
+# Google Drive API - RAHASIA!
+credentials.json
+token.json
 
 # managed
 **.data.json

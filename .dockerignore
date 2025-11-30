@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log
+_IGNORE_*
+*.data.json
+qr_code*.png
+.git
+.gitignore
+README.md
+*.md

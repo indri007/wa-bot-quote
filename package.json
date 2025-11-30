@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Bot WhatsApp Otomatis",
   "main": "bot.js",
+  "type": "commonjs",
   "scripts": {
     "start": "node bot.js"
   },
@@ -18,6 +19,7 @@
     "axios": "^1.13.2",
     "dotenv": "^17.2.3",
     "googleapis": "^165.0.0",
+    "openai": "^6.9.1",
     "yahoo-finance2": "^3.10.1"
   }
 }

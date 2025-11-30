@@ -6,6 +6,7 @@ const axios = require('axios');
 const YahooFinance = require('yahoo-finance2').default;
 const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 const { checkBook } = require('./check-book');
+const { getChart, analyzeStock } = require('./stock-analysis');
 
 // Fungsi utama bot
 async function start(client) {
@@ -47,6 +48,9 @@ async function start(client) {
           `📈 *SAHAM*\n` +
           `• saham AAPL (US)\n` +
           `• saham BBCA.JK (ID)\n\n` +
+          `📈 *ANALISA SAHAM*\n` +
+          `• analyze AAPL \n` +
+          `• analyze NVDA\n\n` +
           `⚽ *FOOTBALL*\n` +
           `• bola epl\n` +
           `• bola laliga\n\n` +
@@ -129,6 +133,39 @@ async function start(client) {
 
       else if (pesan === 'ping') {
         await client.sendText(pengirim, '✅ Bot aktif! 🟢');
+      }
+
+      // Fitur Analisa Saham (Chart + AI)
+      else if (pesan.startsWith('analyze ') || pesan.startsWith('analisa ')) {
+        const ticker = pesan.replace(/^(analyze|analisa)\s+/i, '').trim().toUpperCase();
+
+        if (!ticker) {
+          await client.sendText(pengirim, '❌ Format salah!\n\nContoh: analyza AAPL');
+          return;
+        }
+
+        try {
+          await client.sendText(pengirim, `⏳ Menganalisa saham ${ticker}...\nMohon tunggu sebentar.`);
+
+          // 1. Get Chart
+          const chartUrl = await getChart(ticker);
+
+          if (!chartUrl) {
+            await client.sendText(pengirim, `❌ Gagal membuat chart untuk ${ticker}. Pastikan kode saham benar (misal: AAPL, TSLA).`);
+            return;
+          }
+
+          // 2. Send Chart
+          await client.sendFileFromUrl(pengirim, chartUrl, 'chart.png', `📈 Chart ${ticker}`);
+
+          // 3. Analyze with AI
+          const analysis = await analyzeStock(ticker, chartUrl);
+          await client.sendText(pengirim, analysis);
+
+        } catch (error) {
+          console.error('Error analyzing stock:', error);
+          await client.sendText(pengirim, '❌ Terjadi kesalahan saat menganalisa saham.');
+        }
       }
 
       // Fitur Saham dengan Yahoo Finance API
@@ -1081,6 +1118,18 @@ wa.ev.on('qr.**', async (qrcode, sessionId) => {
 });
 
 // Jalankan bot
+// wa.create({
+//   sessionId: 'bot-wa-saya',
+//   multiDevice: true,
+//   authTimeout: 60,
+//   headless: true,
+//   qrTimeout: 0,
+//   disableSpins: true,
+//   logConsole: false,
+//   useChrome: true
+// })
+//   .then(client => start(client))
+//   .catch(error => console.error('❌ Error:', error));
 wa.create({
   sessionId: 'bot-wa-saya',
   multiDevice: true,
@@ -1089,7 +1138,12 @@ wa.create({
   qrTimeout: 0,
   disableSpins: true,
   logConsole: false,
-  useChrome: true
+  useChrome: true,
+  chromiumArgs: [
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-gpu",
+  ]
 })
   .then(client => start(client))
   .catch(error => console.error('❌ Error:', error));
