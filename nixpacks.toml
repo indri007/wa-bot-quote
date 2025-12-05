@@ -3,8 +3,7 @@ NODE_VERSION = "20"
 nixPkgs = ["chromium"]
 
 [phases.install]
-# ⚠️ Jangan jalankan npm install di sini!
-# Cukup set skip download puppeteer
+cmds = ["npm install"]
 env = { PUPPETEER_SKIP_DOWNLOAD = "true" }
 
 [phases.build]

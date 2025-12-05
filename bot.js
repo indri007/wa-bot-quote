@@ -6,7 +6,7 @@ const axios = require('axios');
 const YahooFinance = require('yahoo-finance2').default;
 const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 const { checkBook } = require('./check-book');
-const { getChart, analyzeStock } = require('./stock-analysis');
+const { analyzeStock } = require('./stock-analysis'); // Analisis teknikal gratis tanpa OpenAI
 
 // Fungsi utama bot
 async function start(client) {
@@ -135,36 +135,40 @@ async function start(client) {
         await client.sendText(pengirim, '✅ Bot aktif! 🟢');
       }
 
-      // Fitur Analisa Saham (Chart + AI)
+      // Fitur Analisa Saham Teknikal (100% GRATIS)
       else if (pesan.startsWith('analyze ') || pesan.startsWith('analisa ')) {
         const ticker = pesan.replace(/^(analyze|analisa)\s+/i, '').trim().toUpperCase();
 
         if (!ticker) {
-          await client.sendText(pengirim, '❌ Format salah!\n\nContoh: analyza AAPL');
+          await client.sendText(pengirim, '❌ Format salah!\n\nContoh:\n• analisa AAPL\n• analisa BBCA.JK\n• analisa TSLA');
           return;
         }
 
         try {
-          await client.sendText(pengirim, `⏳ Menganalisa saham ${ticker}...\nMohon tunggu sebentar.`);
+          await client.sendText(pengirim, `⏳ Menganalisa saham ${ticker}...\nMohon tunggu sebentar (±15 detik).`);
 
-          // 1. Get Chart
-          const chartUrl = await getChart(ticker);
-
-          if (!chartUrl) {
-            await client.sendText(pengirim, `❌ Gagal membuat chart untuk ${ticker}. Pastikan kode saham benar (misal: AAPL, TSLA).`);
-            return;
-          }
-
-          // 2. Send Chart
-          await client.sendFileFromUrl(pengirim, chartUrl, 'chart.png', `📈 Chart ${ticker}`);
-
-          // 3. Analyze with AI
-          const analysis = await analyzeStock(ticker, chartUrl);
+          // Analisis teknikal menggunakan Yahoo Finance
+          const analysis = await analyzeStock(ticker);
+          
+          // Kirim hasil analisis
           await client.sendText(pengirim, analysis);
 
         } catch (error) {
           console.error('Error analyzing stock:', error);
-          await client.sendText(pengirim, '❌ Terjadi kesalahan saat menganalisa saham.');
+          console.error('Stack:', error.stack);
+          
+          await client.sendText(pengirim, 
+            `❌ Terjadi kesalahan saat menganalisa ${ticker}.\n\n` +
+            `Kemungkinan penyebab:\n` +
+            `• Kode ticker salah\n` +
+            `• API Yahoo Finance sedang sibuk\n` +
+            `• Koneksi internet bermasalah\n\n` +
+            `Coba lagi dalam beberapa saat atau gunakan:\n` +
+            `• saham ${ticker} (untuk info harga saja)\n\n` +
+            `Contoh ticker yang benar:\n` +
+            `• US: AAPL, TSLA, MSFT, GOOGL\n` +
+            `• ID: BBCA.JK, TLKM.JK, BBRI.JK`
+          );
         }
       }
 
@@ -497,6 +501,7 @@ async function start(client) {
 
       // Fitur QR Code Generator - Basic
       else if (pesan.startsWith('qr ')) {
+        console.log('📱 QR Code command detected:', pesan);
         const text = message.body.substring(3).trim();
 
         if (!text) {
@@ -506,29 +511,49 @@ async function start(client) {
 
         try {
           await client.sendText(pengirim, '⏳ Membuat QR Code...');
+          console.log('🔍 Generating QR for:', text);
 
-          // Gunakan API QR Code gratis dari goqr.me
+          // Gunakan API QR Code gratis dari qrserver.com
           const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(text)}`;
+          console.log('📡 API URL:', qrUrl);
 
           // Download QR code
-          const response = await axios.get(qrUrl, { responseType: 'arraybuffer' });
-          const buffer = Buffer.from(response.data, 'binary');
+          const response = await axios.get(qrUrl, { 
+            responseType: 'arraybuffer',
+            timeout: 10000 // 10 second timeout
+          });
+          console.log('✅ QR downloaded, size:', response.data.length, 'bytes');
 
-          // Kirim sebagai gambar menggunakan sendFile (lebih reliable)
-          await client.sendFile(
+          const buffer = Buffer.from(response.data, 'binary');
+          console.log('📦 Buffer created, length:', buffer.length);
+
+          // Save to temp file
+          const tempFile = `./temp_qr_${Date.now()}.png`;
+          fs.writeFileSync(tempFile, buffer);
+          console.log('💾 Saved to temp file:', tempFile);
+
+          // Kirim file
+          await client.sendImage(
             pengirim,
-            `data:image/png;base64,${buffer.toString('base64')}`,
+            tempFile,
             'qrcode.png',
             `✅ QR Code berhasil dibuat!\n\nIsi: ${text.substring(0, 100)}${text.length > 100 ? '...' : ''}`
           );
+          console.log('✅ QR Code sent successfully');
+
+          // Delete temp file
+          fs.unlinkSync(tempFile);
+          console.log('🗑️  Temp file deleted');
         } catch (error) {
-          console.error('Error generating QR:', error);
-          await client.sendText(pengirim, '❌ Gagal membuat QR Code. Coba lagi.');
+          console.error('❌ Error generating QR:', error.message);
+          console.error('Stack:', error.stack);
+          await client.sendText(pengirim, `❌ Gagal membuat QR Code.\n\nError: ${error.message}\n\nCoba lagi atau gunakan teks yang lebih pendek.`);
         }
       }
 
       // Fitur QR Code dengan Logo Custom
       else if (pesan.startsWith('qrlogo ')) {
+        console.log('📱 QR Logo command detected:', pesan);
         const text = message.body.substring(7).trim();
 
         if (!text) {
@@ -539,26 +564,38 @@ async function start(client) {
         try {
           await client.sendText(pengirim, '⏳ Membuat QR Code dengan logo...');
 
-          // Gunakan API dengan logo di tengah
+          // Gunakan API dengan margin lebih besar
           const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(text)}&format=png&margin=10`;
 
-          const response = await axios.get(qrUrl, { responseType: 'arraybuffer' });
+          const response = await axios.get(qrUrl, { 
+            responseType: 'arraybuffer',
+            timeout: 10000
+          });
           const buffer = Buffer.from(response.data, 'binary');
 
-          await client.sendFile(
+          // Save to temp file
+          const tempFile = `./temp_qr_logo_${Date.now()}.png`;
+          fs.writeFileSync(tempFile, buffer);
+
+          await client.sendImage(
             pengirim,
-            `data:image/png;base64,${buffer.toString('base64')}`,
+            tempFile,
             'qrcode_logo.png',
             `✅ QR Code dengan desain khusus!\n\n💡 Scan untuk: ${text.substring(0, 80)}${text.length > 80 ? '...' : ''}`
           );
+          console.log('✅ QR Logo sent successfully');
+
+          // Delete temp file
+          fs.unlinkSync(tempFile);
         } catch (error) {
-          console.error('Error generating QR with logo:', error);
-          await client.sendText(pengirim, '❌ Gagal membuat QR Code. Coba lagi.');
+          console.error('❌ Error generating QR with logo:', error.message);
+          await client.sendText(pengirim, `❌ Gagal membuat QR Code.\n\nError: ${error.message}`);
         }
       }
 
       // Fitur QR Code Warna Custom
       else if (pesan.startsWith('qrwarna ')) {
+        console.log('📱 QR Warna command detected:', pesan);
         const text = message.body.substring(8).trim();
 
         if (!text) {
@@ -572,18 +609,29 @@ async function start(client) {
           // QR Code dengan warna custom (biru dan putih)
           const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(text)}&color=0-100-200&bgcolor=255-255-255`;
 
-          const response = await axios.get(qrUrl, { responseType: 'arraybuffer' });
+          const response = await axios.get(qrUrl, { 
+            responseType: 'arraybuffer',
+            timeout: 10000
+          });
           const buffer = Buffer.from(response.data, 'binary');
 
-          await client.sendFile(
+          // Save to temp file
+          const tempFile = `./temp_qr_color_${Date.now()}.png`;
+          fs.writeFileSync(tempFile, buffer);
+
+          await client.sendImage(
             pengirim,
-            `data:image/png;base64,${buffer.toString('base64')}`,
+            tempFile,
             'qrcode_color.png',
             `✅ QR Code warna custom!\n\n🎨 Warna: Biru & Putih\n📱 Scan untuk: ${text.substring(0, 70)}${text.length > 70 ? '...' : ''}`
           );
+          console.log('✅ QR Warna sent successfully');
+
+          // Delete temp file
+          fs.unlinkSync(tempFile);
         } catch (error) {
-          console.error('Error generating colored QR:', error);
-          await client.sendText(pengirim, '❌ Gagal membuat QR Code. Coba lagi.');
+          console.error('❌ Error generating colored QR:', error.message);
+          await client.sendText(pengirim, `❌ Gagal membuat QR Code.\n\nError: ${error.message}`);
         }
       }
 
@@ -1137,12 +1185,13 @@ wa.create({
   headless: true,
   qrTimeout: 0,
   disableSpins: true,
-  logConsole: false,
+  logConsole: true,
   useChrome: true,
   chromiumArgs: [
-    "--no-sandbox",
-    "--disable-setuid-sandbox",
-    "--disable-gpu",
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage',
+    '--disable-gpu'
   ]
 })
   .then(client => start(client))

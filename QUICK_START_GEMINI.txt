@@ -1,0 +1,60 @@
+╔══════════════════════════════════════════════════════════════╗
+║  🤖 BOT WHATSAPP - ANALISIS SAHAM DENGAN GEMINI AI         ║
+╚══════════════════════════════════════════════════════════════╝
+
+✅ SETUP SELESAI!
+
+📦 Dependencies terinstall:
+   ✓ @google/generative-ai (Gemini AI)
+   ✓ yahoo-finance2 (Data saham)
+   ✓ dotenv (Environment variables)
+
+🔑 LANGKAH SELANJUTNYA:
+
+1. Dapatkan Gemini API Key (GRATIS):
+   → Buka: https://makersuite.google.com/app/apikey
+   → Login dengan Google
+   → Klik "Create API Key"
+   → Copy API key
+
+2. Setup API Key:
+   → Buka file .env
+   → Tambahkan: GEMINI_API_KEY=your_api_key_here
+   → Save file
+
+3. Test Analisis:
+   → Jalankan: node test-stock.js
+   → Atau langsung: npm start
+
+📱 CARA PAKAI DI WHATSAPP:
+
+   analisa AAPL       → Analisis Apple
+   analisa BBCA.JK    → Analisis Bank BCA
+   analisa TSLA       → Analisis Tesla
+
+🎯 FITUR:
+
+   DENGAN GEMINI AI:
+   ✓ Analisis mendalam dengan AI
+   ✓ Rekomendasi BUY/SELL/HOLD
+   ✓ Insight actionable
+   ✓ Bahasa Indonesia natural
+
+   TANPA GEMINI AI (Fallback):
+   ✓ Analisis teknikal manual
+   ✓ SMA, Support, Resistance
+   ✓ Volume analysis
+   ✓ Tetap akurat!
+
+💡 TIPS:
+
+   • Free tier: 60 requests/menit (lebih dari cukup!)
+   • Tidak perlu kartu kredit
+   • Bot tetap jalan tanpa API key (mode fallback)
+   • Lihat GEMINI_API_SETUP.md untuk panduan lengkap
+
+🚀 READY TO GO!
+
+   npm start  → Jalankan bot
+   
+═══════════════════════════════════════════════════════════════
