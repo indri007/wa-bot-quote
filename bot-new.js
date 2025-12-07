@@ -55,10 +55,33 @@ client.on('auth_failure', (msg) => {
 // Event: Disconnected
 client.on('disconnected', (reason) => {
     console.log('⚠️ Bot disconnected:', reason);
+    console.log('🔄 Attempting to reconnect in 10 seconds...');
+    
+    setTimeout(() => {
+        console.log('🔄 Reinitializing client...');
+        client.initialize();
+    }, 10000);
+});
+
+// Event: Loading Screen
+client.on('loading_screen', (percent, message) => {
+    console.log('⏳ Loading:', percent, message);
+});
+
+// Event: Change State
+client.on('change_state', state => {
+    console.log('🔄 Connection state changed:', state);
+});
+
+// Auto-reconnect on error
+client.on('error', (error) => {
+    console.error('❌ Client error:', error);
+    console.log('🔄 Will attempt to reconnect...');
 });
 
 // Event: Message
 client.on('message', async (message) => {
+    
     try {
         const pesan = message.body.toLowerCase();
         const pengirim = message.from;
@@ -423,6 +446,108 @@ client.on('message', async (message) => {
     }
 });
 
+// ============================================
+// AGGRESSIVE WATCHDOG & HEALTH CHECK SYSTEM
+// ============================================
+
+let isReady = false;
+let lastMessageTime = Date.now();
+let lastHealthCheckSuccess = Date.now();
+let healthCheckFailCount = 0;
+const MAX_HEALTH_CHECK_FAILS = 3;
+const HEALTH_CHECK_INTERVAL = 2 * 60 * 1000; // 2 minutes (more frequent)
+const MAX_NO_MESSAGE_TIME = 60 * 60 * 1000; // 1 hour before force restart
+
+// Update ready status
+client.on('ready', () => {
+    isReady = true;
+    lastHealthCheckSuccess = Date.now();
+    healthCheckFailCount = 0;
+    console.log('✅ Bot is ready and connected!');
+});
+
+// Track message activity
+client.on('message', (msg) => {
+    lastMessageTime = Date.now();
+    healthCheckFailCount = 0; // Reset fail count on successful message
+});
+
+// Aggressive Health Check - Every 2 minutes
+setInterval(async () => {
+    if (!isReady) {
+        console.log('⚠️ Bot not ready, skipping health check');
+        return;
+    }
+
+    try {
+        // Test 1: Check connection state
+        const state = await client.getState();
+        
+        // Test 2: Try to get info (more thorough check)
+        const info = await client.info;
+        
+        // Success - reset counters
+        lastHealthCheckSuccess = Date.now();
+        healthCheckFailCount = 0;
+        console.log(`💚 Health check PASSED | State: ${state} | WID: ${info?.wid?.user || 'N/A'}`);
+        
+        // Check message activity
+        const timeSinceLastMessage = Date.now() - lastMessageTime;
+        const hoursSinceMessage = Math.floor(timeSinceLastMessage / (60 * 60 * 1000));
+        
+        if (timeSinceLastMessage > 30 * 60 * 1000) {
+            console.log(`⚠️ No messages received in ${hoursSinceMessage} hour(s). Bot might be idle or not receiving messages.`);
+        }
+        
+        // FORCE RESTART if no messages for too long (might indicate listener died)
+        if (timeSinceLastMessage > MAX_NO_MESSAGE_TIME) {
+            console.error(`🚨 CRITICAL: No messages for ${hoursSinceMessage} hours! Event listener might be dead.`);
+            console.error('🔄 FORCING RESTART to recover...');
+            process.exit(1); // PM2 will auto-restart
+        }
+        
+    } catch (error) {
+        healthCheckFailCount++;
+        console.error(`❌ Health check FAILED (${healthCheckFailCount}/${MAX_HEALTH_CHECK_FAILS}):`, error.message);
+        
+        // FORCE RESTART after multiple consecutive failures
+        if (healthCheckFailCount >= MAX_HEALTH_CHECK_FAILS) {
+            console.error('🚨 CRITICAL: Multiple health check failures detected!');
+            console.error('🔄 Bot is unresponsive. FORCING RESTART...');
+            process.exit(1); // PM2 will auto-restart
+        }
+    }
+}, HEALTH_CHECK_INTERVAL);
+
+// Monitor for disconnection
+client.on('disconnected', (reason) => {
+    console.error('❌ Bot disconnected:', reason);
+    isReady = false;
+    
+    // Force exit after 30 seconds if not reconnected
+    setTimeout(() => {
+        if (!isReady) {
+            console.error('🚨 Failed to reconnect after 30 seconds. FORCING RESTART...');
+            process.exit(1);
+        }
+    }, 30000);
+});
+
+// Graceful shutdown handler
+process.on('SIGINT', async () => {
+    console.log('⚠️ Received SIGINT. Shutting down gracefully...');
+    await client.destroy();
+    process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+    console.log('⚠️ Received SIGTERM. Shutting down gracefully...');
+    await client.destroy();
+    process.exit(0);
+});
+
 // Initialize client
 console.log('🚀 Memulai bot...');
+console.log('📱 Scan QR code dengan WhatsApp Anda!');
+console.log('🔍 Watchdog enabled: Will auto-restart if unresponsive');
 client.initialize();

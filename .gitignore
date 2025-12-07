@@ -3,6 +3,7 @@ node_modules/
 # Session data - JANGAN DIUPLOAD KE GITHUB!
 _IGNORE_*/
 *.data.json
+*.md
 # QR Code
 qr_code*.png
 # Logs
@@ -13,6 +14,7 @@ yarn-error.log*
 # OS
 wa-session
 .wwebjs_cache
+.node-persist
 .DS_Store
 Thumbs.db
 # Environment variables
