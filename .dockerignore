@@ -7,3 +7,4 @@ qr_code*.png
 .gitignore
 README.md
 *.md
+wa-session

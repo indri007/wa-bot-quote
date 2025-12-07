@@ -8,6 +8,7 @@ const YahooFinance = require('yahoo-finance2').default;
 const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 const { checkBook } = require('./check-book');
 const { analyzeStock } = require('./stock-analysis');
+const { convertCurrency, getPopularRates } = require('./currency-converter');
 
 // Inisialisasi client
 const client = new Client({
@@ -84,6 +85,9 @@ client.on('message', async (message) => {
                 `💰 *CRYPTO*\n` +
                 `• crypto bitcoin\n` +
                 `• crypto ethereum\n\n` +
+                `*KURS*\n` +
+                `• kurs USD\n` +
+                `• kurs 100 USD IDR\n\n` +
                 `📈 *SAHAM*\n` +
                 `• saham AAPL (US)\n` +
                 `• saham BBCA.JK (ID)\n\n` +
@@ -95,6 +99,10 @@ client.on('message', async (message) => {
                 `• kalori 70 170 25 pria\n\n` +
                 `📱 *QR CODE*\n` +
                 `• qr https://google.com\n\n` +
+                `� *KUKRS MATA UANG*\n` +
+                `• kurs USD (kurs USD hari ini)\n` +
+                `• kurs 100 USD IDR (konversi)\n` +
+                `• kurs USD IDR (rate USD ke IDR)\n\n` +
                 `📚 *WIKIPEDIA*\n` +
                 `• wiki Indonesia\n\n` +
                 `💡 Chat PRIBADI, bukan grup!\n` +
@@ -109,8 +117,9 @@ client.on('message', async (message) => {
 
         else if (pesan === 'info') {
             const infoText = `🤖 *BOT WHATSAPP ASSISTANT*\n\n` +
-                `Bot otomatis dengan AI untuk analisis saham!\n\n` +
+                `Bot otomatis dengan AI untuk analisis saham & kurs!\n\n` +
                 `✅ Analisis Saham AI (Gemini)\n` +
+                `✅ Kurs Mata Uang + AI Analysis\n` +
                 `✅ Data Real-time\n` +
                 `✅ Cryptocurrency\n` +
                 `✅ QR Code Generator\n` +
@@ -289,6 +298,54 @@ client.on('message', async (message) => {
             } catch (error) {
                 console.error('Error generating QR:', error);
                 await message.reply('❌ Gagal membuat QR Code.');
+            }
+        }
+
+        // Fitur Kurs Mata Uang
+        else if (pesan.startsWith('kurs')) {
+            const parts = message.body.split(' ').filter(p => p);
+
+            try {
+                // Format 1: kurs USD (tampilkan kurs USD hari ini)
+                if (parts.length === 2) {
+                    const currency = parts[1].toUpperCase();
+                    await message.reply('⏳ Mengambil data kurs...');
+                    
+                    const result = await getPopularRates(currency);
+                    await message.reply(result);
+                }
+                // Format 2: kurs USD IDR (rate USD ke IDR dengan AI analysis)
+                else if (parts.length === 3) {
+                    const from = parts[1].toUpperCase();
+                    const to = parts[2].toUpperCase();
+                    
+                    await message.reply('⏳ Mengambil data kurs dan analisis AI...\nMohon tunggu 15-20 detik.');
+                    
+                    const result = await convertCurrency(from, to, 1);
+                    await message.reply(result);
+                }
+                // Format 3: kurs 100 USD IDR (konversi amount)
+                else if (parts.length === 4) {
+                    const amount = parseFloat(parts[1]);
+                    const from = parts[2].toUpperCase();
+                    const to = parts[3].toUpperCase();
+                    
+                    if (isNaN(amount) || amount <= 0) {
+                        await message.reply('❌ Jumlah tidak valid!\n\nContoh: kurs 100 USD IDR');
+                        return;
+                    }
+                    
+                    await message.reply('⏳ Mengambil data kurs dan analisis AI...\nMohon tunggu 15-20 detik.');
+                    
+                    const result = await convertCurrency(from, to, amount);
+                    await message.reply(result);
+                }
+                else {
+                    await message.reply('❌ Format salah!\n\nContoh:\n• kurs USD (kurs USD hari ini)\n• kurs USD IDR (rate + analisis AI)\n• kurs 100 USD IDR (konversi)');
+                }
+            } catch (error) {
+                console.error('Error with currency:', error);
+                await message.reply('❌ Gagal mendapatkan data kurs. Coba lagi nanti.');
             }
         }
 

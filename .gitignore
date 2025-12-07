@@ -20,7 +20,7 @@ Thumbs.db
 # Google Drive API - RAHASIA!
 credentials.json
 token.json
-
+test-*
 # managed
 **.data.json
 **.node-persist**
