@@ -12,6 +12,7 @@ yarn-debug.log*
 yarn-error.log*
 # OS
 wa-session
+.wwebjs_cache
 .DS_Store
 Thumbs.db
 # Environment variables
