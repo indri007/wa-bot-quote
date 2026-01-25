@@ -62,7 +62,7 @@ client.on('auth_failure', (msg) => {
 client.on('disconnected', (reason) => {
     console.log('⚠️ Bot disconnected:', reason);
     console.log('🔄 Attempting to reconnect in 10 seconds...');
-    
+
     setTimeout(() => {
         console.log('🔄 Reinitializing client...');
         client.initialize();
@@ -87,7 +87,7 @@ client.on('error', (error) => {
 
 // Event: Message
 client.on('message', async (message) => {
-    
+
     try {
         const pesan = message.body.toLowerCase();
         const pengirim = message.from;
@@ -179,39 +179,44 @@ client.on('message', async (message) => {
             }
         }
 
-        // Fitur Saham
+        // Fitur Saham dengan Google Finance
         else if (pesan.startsWith('saham ')) {
-            const symbol = pesan.replace('saham ', '').trim().toUpperCase();
+            const rawTicker = pesan.replace('saham ', '').trim().toUpperCase();
+
+            if (!rawTicker) {
+                await message.reply('❌ Format salah!\n\nContoh:\n• saham AAPL\n• saham BBCA.JK');
+                return;
+            }
+
             try {
                 await message.reply('⏳ Mengambil data saham...');
 
-                const quote = await yahooFinance.quote(symbol);
+                // Use the new Google Finance scraper directly here too for simple quotes
+                const googleFinance = require('./google-finance-scraper');
+                const quote = await googleFinance.getQuote(rawTicker);
 
-                if (quote && quote.regularMarketPrice) {
-                    const price = quote.regularMarketPrice.toLocaleString('en-US', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    });
-                    const change = quote.regularMarketChange ? quote.regularMarketChange.toFixed(2) : 'N/A';
-                    const changePercent = quote.regularMarketChangePercent ? quote.regularMarketChangePercent.toFixed(2) : 'N/A';
-                    const changeEmoji = quote.regularMarketChange > 0 ? '📈' : '📉';
-                    const currency = quote.currency || 'USD';
+                if (quote && quote.price) {
+                    let stockInfo = `📈 *${quote.name}* (${quote.symbol})\n\n`;
+                    stockInfo += `💵 Harga: ${quote.price}\n`;
+                    stockInfo += `📉 Perubahan: ${quote.change} (${quote.changePercent})\n\n`;
 
-                    let stockInfo = `📈 *${quote.symbol}*\n`;
-                    stockInfo += quote.longName ? `${quote.longName}\n\n` : '\n';
-                    stockInfo += `💵 Harga: ${currency} ${price}\n`;
-                    stockInfo += `${changeEmoji} Perubahan: ${change} (${changePercent}%)\n\n`;
-                    stockInfo += `Data dari Yahoo Finance`;
+                    if (quote.details.Open) stockInfo += `🔓 Open: ${quote.details.Open}\n`;
+                    if (quote.details['Market cap']) stockInfo += `📊 Mkt Cap: ${quote.details['Market cap']}\n`;
+
+                    stockInfo += `\nData dari Google Finance`;
 
                     await message.reply(stockInfo);
                 } else {
-                    await message.reply(`❌ Saham "${symbol}" tidak ditemukan.\n\nContoh: AAPL, BBCA.JK`);
+                    await message.reply(`❌ Saham "${rawTicker}" tidak ditemukan.\n\nContoh: AAPL, BBCA.JK`);
                 }
 
             } catch (error) {
                 console.error('Error fetching stock:', error);
-                await message.reply(`❌ Gagal mengambil data saham "${symbol}".`);
+                await message.reply(`❌ Gagal mengambil data saham "${rawTicker}".`);
             }
+        }
+        else if (pesan === 'saham') {
+            await message.reply('💻 *FITUR SAHAM*\n\nKetik kode saham untuk cek harga:\n• saham BBCA.JK\n• saham TLKM.JK\n• saham AAPL\n• saham BTC-USD');
         }
 
         // Fitur Crypto
@@ -318,7 +323,7 @@ client.on('message', async (message) => {
 
                 const media = require('whatsapp-web.js').MessageMedia;
                 const qrMedia = media.fromFilePath(tempFile);
-                
+
                 await client.sendMessage(pengirim, qrMedia, {
                     caption: `✅ QR Code berhasil dibuat!\n\nIsi: ${text.substring(0, 100)}`
                 });
@@ -339,7 +344,7 @@ client.on('message', async (message) => {
                 if (parts.length === 2) {
                     const currency = parts[1].toUpperCase();
                     await message.reply('⏳ Mengambil data kurs...');
-                    
+
                     const result = await getPopularRates(currency);
                     await message.reply(result);
                 }
@@ -347,9 +352,9 @@ client.on('message', async (message) => {
                 else if (parts.length === 3) {
                     const from = parts[1].toUpperCase();
                     const to = parts[2].toUpperCase();
-                    
+
                     await message.reply('⏳ Mengambil data kurs dan analisis AI...\nMohon tunggu 15-20 detik.');
-                    
+
                     const result = await convertCurrency(from, to, 1);
                     await message.reply(result);
                 }
@@ -358,14 +363,14 @@ client.on('message', async (message) => {
                     const amount = parseFloat(parts[1]);
                     const from = parts[2].toUpperCase();
                     const to = parts[3].toUpperCase();
-                    
+
                     if (isNaN(amount) || amount <= 0) {
                         await message.reply('❌ Jumlah tidak valid!\n\nContoh: kurs 100 USD IDR');
                         return;
                     }
-                    
+
                     await message.reply('⏳ Mengambil data kurs dan analisis AI...\nMohon tunggu 15-20 detik.');
-                    
+
                     const result = await convertCurrency(from, to, amount);
                     await message.reply(result);
                 }
@@ -488,34 +493,34 @@ setInterval(async () => {
     try {
         // Test 1: Check connection state
         const state = await client.getState();
-        
+
         // Test 2: Try to get info (more thorough check)
         const info = await client.info;
-        
+
         // Success - reset counters
         lastHealthCheckSuccess = Date.now();
         healthCheckFailCount = 0;
         console.log(`💚 Health check PASSED | State: ${state} | WID: ${info?.wid?.user || 'N/A'}`);
-        
+
         // Check message activity
         const timeSinceLastMessage = Date.now() - lastMessageTime;
         const hoursSinceMessage = Math.floor(timeSinceLastMessage / (60 * 60 * 1000));
-        
+
         if (timeSinceLastMessage > 30 * 60 * 1000) {
             console.log(`⚠️ No messages received in ${hoursSinceMessage} hour(s). Bot might be idle or not receiving messages.`);
         }
-        
+
         // FORCE RESTART if no messages for too long (might indicate listener died)
         if (timeSinceLastMessage > MAX_NO_MESSAGE_TIME) {
             console.error(`🚨 CRITICAL: No messages for ${hoursSinceMessage} hours! Event listener might be dead.`);
             console.error('🔄 FORCING RESTART to recover...');
             process.exit(1); // PM2 will auto-restart
         }
-        
+
     } catch (error) {
         healthCheckFailCount++;
         console.error(`❌ Health check FAILED (${healthCheckFailCount}/${MAX_HEALTH_CHECK_FAILS}):`, error.message);
-        
+
         // FORCE RESTART after multiple consecutive failures
         if (healthCheckFailCount >= MAX_HEALTH_CHECK_FAILS) {
             console.error('🚨 CRITICAL: Multiple health check failures detected!');
@@ -529,7 +534,7 @@ setInterval(async () => {
 client.on('disconnected', (reason) => {
     console.error('❌ Bot disconnected:', reason);
     isReady = false;
-    
+
     // Force exit after 30 seconds if not reconnected
     setTimeout(() => {
         if (!isReady) {

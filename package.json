@@ -20,6 +20,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "axios": "^1.13.2",
+    "cheerio": "^1.2.0",
     "dotenv": "^17.2.3",
     "googleapis": "^165.0.0",
     "qrcode-terminal": "^0.12.0",
