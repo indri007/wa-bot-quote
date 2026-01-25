@@ -24,9 +24,15 @@ const client = new Client({
             '--disable-accelerated-2d-canvas',
             '--no-first-run',
             '--no-zygote',
-            '--disable-gpu'
+            '--disable-gpu',
+            '--disable-web-security',
+            '--disable-features=VizDisplayCompositor'
         ]
-    }
+    },
+    // webVersionCache: {
+    //     type: 'remote',
+    //     remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
+    // }
 });
 
 // Event: QR Code
@@ -96,7 +102,7 @@ client.on('message', async (message) => {
 
         // Respon otomatis
         if (pesan === 'halo' || pesan === 'hi' || pesan === 'hai') {
-            await message.reply('👋 Halo! Ada yang bisa saya bantu?\n\nKetik *menu* untuk lihat perintah.');
+            await client.sendMessage(pengirim, '👋 Halo! Ada yang bisa saya bantu?\n\nKetik *menu* untuk lihat perintah.');
         }
 
         else if (pesan === 'menu') {
@@ -131,11 +137,11 @@ client.on('message', async (message) => {
                 `💡 Chat PRIBADI, bukan grup!\n` +
                 `Selamat menggunakan! 🎉`;
 
-            await message.reply(menu);
+            await client.sendMessage(pengirim, menu);
         }
 
         else if (pesan === 'ping') {
-            await message.reply('✅ Bot aktif! 🟢');
+            await client.sendMessage(pengirim, '✅ Bot aktif! 🟢');
         }
 
         else if (pesan === 'info') {
@@ -149,7 +155,7 @@ client.on('message', async (message) => {
                 `✅ Wikipedia\n\n` +
                 `Ketik *menu* untuk mulai! 🚀`;
 
-            await message.reply(infoText);
+            await client.sendMessage(pengirim, infoText);
         }
 
         // Fitur Analisa Saham AI
