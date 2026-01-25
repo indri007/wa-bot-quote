@@ -94,9 +94,9 @@ client.on('message', async (message) => {
 
         console.log(`📩 Pesan dari ${pengirim}: ${message.body}`);
 
-        // FILTER: Abaikan pesan dari grup
-        if (pengirim.includes('@g.us')) {
-            console.log('⚠️ Pesan dari grup diabaikan');
+        // FILTER: Abaikan pesan dari grup dan status update
+        if (pengirim.includes('@g.us') || pengirim === 'status@broadcast') {
+            console.log(`⚠️ Pesan diabaikan dari: ${pengirim}`);
             return;
         }
 

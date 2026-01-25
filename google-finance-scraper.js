@@ -36,6 +36,29 @@ async function getQuote(ticker) {
             timeout: 10000
         });
 
+        // STRATEGY 1: Parse from Data Scripts (Most Robust)
+        const scriptData = parseFromScript(response.data, ticker);
+        if (scriptData) {
+            const isIDR = scriptData.currency === 'IDR';
+            const locale = isIDR ? 'id-ID' : 'en-US';
+            const priceFormatted = scriptData.price.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const currencySymbol = isIDR ? 'Rp' : (scriptData.currency === 'USD' ? '$' : scriptData.currency);
+
+            return {
+                symbol: ticker,
+                googleSymbol: googleTicker,
+                name: scriptData.name,
+                price: `${currencySymbol} ${priceFormatted}`,
+                currency: scriptData.currency,
+                change: (scriptData.change > 0 ? '+' : '') + scriptData.change.toFixed(2),
+                changePercent: (scriptData.changePercent > 0 ? '+' : '') + scriptData.changePercent.toFixed(2) + '%',
+                details: {}, // Detailed parsing from JSON is possible but complex, skipping for now
+                url: url
+            };
+        }
+
+        // STRATEGY 2: Fallback to DOM Scraping
+        console.log('⚠️ Script parsing failed. Falling back to DOM selectors...');
         const $ = cheerio.load(response.data);
 
         // Selectors (Updated Jan 2026 based on inspection)
@@ -45,18 +68,14 @@ async function getQuote(ticker) {
         // Name class: .zzDege
         const name = $('.zzDege').first().text() || ticker;
 
-        // Change class: .P2Luy (for +/- amount) and percentage might be adjacent
-        // Note: Google Finance structure varies. usually .P2Luy contains "+1.23%"
-        // We might need to look for specific structure.
-
-        // Try getting the main header section
+        // Try to find change strictly related to the main price header
         const changeValues = [];
-        $('.P2Luy').each((i, el) => {
+        $('.P2Luy, .gQBj0d').each((i, el) => {
             changeValues.push($(el).text());
         });
 
-        const change = changeValues[0] || '0'; // Amount
-        const changePercent = changeValues[1] || '0%'; // Percentage (sometimes combined)
+        const change = changeValues[0] || '0';
+        const changePercent = changeValues[1] || '0%';
 
         // Previous Close / Open / Market Cap often in table .gyFHrc
         const details = {};
@@ -69,11 +88,11 @@ async function getQuote(ticker) {
         });
 
         if (!priceText) {
-            console.error('❌ Failed to parse price.');
+            console.error('❌ Failed to parse price from DOM and Scripts.');
             return null;
         }
 
-        // Clean up price (remove currency symbols for raw number if needed, but keeping string is safer for display)
+        // Clean up price
         const currency = priceText.includes('Rp') ? 'IDR' : (priceText.includes('$') ? 'USD' : '');
 
         return {
@@ -84,7 +103,7 @@ async function getQuote(ticker) {
             currency: currency,
             change: change,
             changePercent: changePercent,
-            details: details, // Contains Open, High, Low, Mkt Cap, etc.
+            details: details,
             url: url
         };
 
@@ -96,6 +115,72 @@ async function getQuote(ticker) {
         console.error('❌ Error scraping Google Finance:', error.message);
         throw error;
     }
+}
+
+function parseFromScript(html, ticker) {
+    try {
+        // Find all AF_initDataCallback blocks
+        const regex = /AF_initDataCallback\({key: 'ds:1', hash: '[^']+', data:([\s\S]*?), sideChannel: {}}\);/gm;
+        let match;
+
+        // Clean ticker for matching (generic)
+        // e.g. BBCA.JK -> BBCA
+        const cleanTicker = ticker.split('.')[0];
+
+        while ((match = regex.exec(html)) !== null) {
+            const dataStr = match[1];
+            try {
+                const data = JSON.parse(dataStr);
+
+                // Helper to recursive search
+                function findStockData(obj) {
+                    if (!obj || typeof obj !== 'object') return null;
+
+                    if (Array.isArray(obj)) {
+                        // Check if this array looks like a stock quote
+                        // Format: ["/m/...", ["AAPL", "NASDAQ"], "Apple Inc", 0, "USD", [248.04, ...], ...]
+                        // Check for ticker match in the identifiers array (obj[1])
+                        // obj[1] is usually ["AAPL", "NASDAQ"]
+                        if (obj.length > 5 &&
+                            Array.isArray(obj[1]) &&
+                            (obj[1].includes(cleanTicker) || obj[1].includes(ticker))) {
+                            return obj;
+                        }
+
+                        for (let item of obj) {
+                            const found = findStockData(item);
+                            if (found) return found;
+                        }
+                    }
+                    return null;
+                }
+
+                const stockData = findStockData(data);
+
+                if (stockData) {
+                    const name = stockData[2];
+                    const currency = stockData[4];
+                    const priceInfo = stockData[5];
+
+                    if (priceInfo && priceInfo.length >= 3) {
+                        return {
+                            name,
+                            price: priceInfo[0], // Number
+                            currency,
+                            change: priceInfo[1], // Number
+                            changePercent: priceInfo[2] // Number
+                        };
+                    }
+                }
+
+            } catch (e) {
+                // Ignore parse errors for individual blocks
+            }
+        }
+    } catch (e) {
+        console.error("Error in regex parsing", e);
+    }
+    return null;
 }
 
 module.exports = { getQuote };
