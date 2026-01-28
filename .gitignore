@@ -14,6 +14,7 @@ yarn-error.log*
 # OS
 wa-session
 baileys-auth=
+baileys-auth
 .wwebjs_cache
 .node-persist
 .DS_Store
