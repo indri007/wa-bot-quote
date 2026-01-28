@@ -1,30 +1,48 @@
 {
   "name": "bot-whatsapp-saya",
   "version": "1.0.0",
-  "description": "Bot WhatsApp Otomatis",
-  "main": "bot.js",
+  "description": "Bot WhatsApp Otomatis dengan Baileys",
+  "main": "bot-new-baileys.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node bot.js"
+    "start": "node bot-new-baileys.js",
+    "dev": "node bot-new-baileys.js",
+    "pm2": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop wa-bot-baileys",
+    "pm2:restart": "pm2 restart wa-bot-baileys",
+    "pm2:logs": "pm2 logs wa-bot-baileys"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "keywords": [
     "whatsapp",
     "bot",
-    "chatbot"
+    "chatbot",
+    "baileys",
+    "ai",
+    "stock",
+    "crypto"
   ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@whiskeysockets/baileys": "^6.7.8",
+    "@hapi/boom": "^10.0.1",
+    "qrcode-terminal": "^0.12.0",
+    "pino": "^8.19.0",
     "axios": "^1.13.2",
-    "cheerio": "^1.2.0",
     "dotenv": "^17.2.3",
     "googleapis": "^165.0.0",
-    "qrcode-terminal": "^0.12.0",
-    "whatsapp-web.js": "github:pedroslopez/whatsapp-web.js#main",
     "yahoo-finance2": "^3.10.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/indri007/wa-bot-quote.git"
+  },
+  "bugs": {
+    "url": "https://github.com/indri007/wa-bot-quote/issues"
+  },
+  "homepage": "https://github.com/indri007/wa-bot-quote#readme"
 }
