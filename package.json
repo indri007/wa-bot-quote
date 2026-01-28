@@ -5,15 +5,18 @@
   "main": "bot-new-baileys.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node bot-new-baileys.js",
-    "dev": "node bot-new-baileys.js",
+    "start": "node --max-old-space-size=1024 bot-new-baileys.js",
+    "dev": "node --inspect --max-old-space-size=1024 bot-new-baileys.js",
     "pm2": "pm2 start ecosystem.config.js",
     "pm2:stop": "pm2 stop wa-bot-baileys",
     "pm2:restart": "pm2 restart wa-bot-baileys",
-    "pm2:logs": "pm2 logs wa-bot-baileys"
+    "pm2:logs": "pm2 logs wa-bot-baileys",
+    "pm2:status": "pm2 status",
+    "pm2:monit": "pm2 monit"
   },
   "engines": {
-    "node": ">=18"
+    "node": "22.21.0",
+    "npm": ">=10.0.0"
   },
   "keywords": [
     "whatsapp",
@@ -22,21 +25,25 @@
     "baileys",
     "ai",
     "stock",
-    "crypto"
+    "crypto",
+    "nodejs22"
   ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
-    "@whiskeysockets/baileys": "^6.7.8",
     "@hapi/boom": "^10.0.1",
-    "qrcode-terminal": "^0.12.0",
-    "pino": "^8.19.0",
+    "@whiskeysockets/baileys": "^7.0.0-rc.9",
     "axios": "^1.13.2",
+    "cheerio": "^1.2.0",
     "dotenv": "^17.2.3",
     "googleapis": "^165.0.0",
+    "pino": "^8.19.0",
+    "qrcode-terminal": "^0.12.0",
     "yahoo-finance2": "^3.10.1"
   },
+  "optionalDependencies": {},
+  "peerDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/indri007/wa-bot-quote.git"
@@ -44,5 +51,8 @@
   "bugs": {
     "url": "https://github.com/indri007/wa-bot-quote/issues"
   },
-  "homepage": "https://github.com/indri007/wa-bot-quote#readme"
+  "homepage": "https://github.com/indri007/wa-bot-quote#readme",
+  "volta": {
+    "node": "22.21.0"
+  }
 }

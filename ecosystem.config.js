@@ -13,12 +13,20 @@ module.exports = {
     exp_backoff_restart_delay: 100,
     env: {
       NODE_ENV: 'production',
-      TZ: 'Asia/Jakarta'
+      TZ: 'Asia/Jakarta',
+      NODE_VERSION: '22',
+      UV_THREADPOOL_SIZE: '128'
     },
     env_production: {
       NODE_ENV: 'production',
-      TZ: 'Asia/Jakarta'
+      TZ: 'Asia/Jakarta',
+      NODE_VERSION: '22',
+      UV_THREADPOOL_SIZE: '128'
     },
+    node_args: [
+      '--max-old-space-size=1024',
+      '--enable-source-maps'
+    ],
     error_file: './logs/err.log',
     out_file: './logs/out.log',
     log_file: './logs/combined.log',
@@ -45,6 +53,9 @@ module.exports = {
     shutdown_with_message: true,
     wait_ready: true,
     // Log rotation
-    log_type: 'json'
+    log_type: 'json',
+    // Node.js v22 specific optimizations
+    interpreter: 'node',
+    interpreter_args: '--experimental-modules --es-module-specifier-resolution=node'
   }]
 };

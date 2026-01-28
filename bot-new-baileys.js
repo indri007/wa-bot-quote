@@ -18,16 +18,26 @@ async function startBot() {
     // Auth state
     const { state, saveCreds } = await useMultiFileAuthState('./baileys-auth');
     
-    // Create socket dengan konfigurasi sederhana
+    // Create socket dengan konfigurasi yang lebih stabil
     const sock = makeWASocket({
         auth: state,
-        logger: pino({ level: 'silent' })
+        logger: pino({ level: 'silent' }),
+        printQRInTerminal: false,
+        browser: ['WhatsApp Bot', 'Chrome', '1.0.0'],
+        connectTimeoutMs: 60000,
+        defaultQueryTimeoutMs: 0,
+        keepAliveIntervalMs: 10000,
+        emitOwnEvents: false,
+        fireInitQueries: true,
+        generateHighQualityLinkPreview: false,
+        syncFullHistory: false,
+        markOnlineOnConnect: true
     });
     
     // Save credentials
     sock.ev.on('creds.update', saveCreds);
     
-    // Connection update
+    // Connection update dengan error handling yang lebih baik
     sock.ev.on('connection.update', (update) => {
         const { connection, lastDisconnect, qr } = update;
         
@@ -38,14 +48,20 @@ async function startBot() {
         
         if (connection === 'close') {
             const shouldReconnect = (lastDisconnect?.error instanceof Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
-            console.log('❌ Connection closed due to', lastDisconnect?.error, ', reconnecting:', shouldReconnect);
+            console.log('❌ Connection closed due to', lastDisconnect?.error?.message || 'unknown error', ', reconnecting:', shouldReconnect);
             
+            // Tambahkan delay sebelum reconnect untuk menghindari spam
             if (shouldReconnect) {
-                startBot();
+                console.log('🔄 Reconnecting in 10 seconds...');
+                setTimeout(() => {
+                    startBot();
+                }, 10000);
             }
         } else if (connection === 'open') {
             console.log('✅ Bot connected successfully!');
             console.log('📱 Ready to receive messages with full features!');
+        } else if (connection === 'connecting') {
+            console.log('🔄 Connecting to WhatsApp...');
         }
     });
     
